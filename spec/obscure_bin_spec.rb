@@ -29,3 +29,12 @@ describe "works with files" do
     `rm #{tmpfile_path}`
   end
 end
+
+describe "merges yml files" do
+  it "to stdout" do
+    output = File.read('spec/support/web-merged.yml')
+    expect($stdout).to receive(:<<).with(output)
+    ObscureYaml::Cli.parse(["merge", 'spec/support/web-base.yml', 'spec/support/web-env.yml'])
+  end
+end
+

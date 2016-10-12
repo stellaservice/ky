@@ -1,10 +1,19 @@
+require 'deep_merge'
 module ObscureYaml
   module ManipulateYaml
     DEFAULT_DATA_KEY = 'data'
     MAGIC_DELIMITER = '@'
 
     class << self
-      def construct_yaml(yaml_source, direction)
+      def merge_yaml(input1, input2)
+        combined = {}
+        YAML.load(input1.read).tap { |hsh|
+          # require 'pry'; binding.pry
+          hsh.deep_merge!(YAML.load(input2.read), merge_hash_arrays: true, extend_existing_arrays: true)
+        }.to_yaml
+      end
+
+      def code_yaml(yaml_source, direction)
         YAML.load(yaml_source.read).tap { |hsh|
           data = hsh[obscured_data_key]
           hsh[obscured_data_key] = data.map { |key, value|
@@ -14,7 +23,7 @@ module ObscureYaml
       end
 
       def handle_coding(direction, value)
-        direction == :output ? Base64.decode64(value) : Base64.strict_encode64(value_or_file_contents(value))
+        direction == :decode ? Base64.decode64(value) : Base64.strict_encode64(value_or_file_contents(value))
       end
 
       def value_or_file_contents(value)

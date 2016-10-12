@@ -3,21 +3,36 @@ module ObscureYaml
   module Cli
     DECODE = 'decode'
     ENCODE = 'encode'
+    MERGE  = 'merge'
     module_function
 
     def parse(arguments)
-      mode = arguments.shift
-      output = arguments.last != arguments.first ? arguments.pop : $stdout
-      input = arguments.first || $stdin
-      with(input, 'r') do |input_object|
-        with(output, 'w+') do |output_object|
-          case mode
-          when DECODE
-            ObscureYaml.decode(output_object, input_object)
-          when ENCODE
-            ObscureYaml.encode(output_object, input_object)
+      setup(arguments) do |mode, input_object, output_object|
+        case mode
+        when DECODE
+          ObscureYaml.decode(output_object, input_object)
+        when ENCODE
+          ObscureYaml.encode(output_object, input_object)
+        when MERGE
+          input2 = arguments.first
+          with(input2, 'r') do |input_object2|
+            ObscureYaml.merge(output_object, input_object, input_object2)
           end
         end
+      end
+    end
+
+    def setup(arguments)
+      mode = arguments.shift
+      input = arguments.shift || $stdin
+      with(input, 'r') {|input_object| with(output(mode, arguments), 'w+') { |output_object| yield(mode, input_object, output_object)  } }
+    end
+
+    def output(mode, arguments)
+      if mode != MERGE
+        arguments.shift || $stdout
+      else
+        arguments.last != arguments.first ? arguments.pop : $stdout
       end
     end
 

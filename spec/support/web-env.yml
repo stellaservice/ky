@@ -1,0 +1,20 @@
+spec:
+  template:
+    spec:
+      containers:
+          - env:
+            - name: TZ
+              valueFrom:
+                configMapKeyRef:
+                  name: connect
+                  key: tz
+            - name: USE_SSL
+              valueFrom:
+                configMapKeyRef:
+                  name: connect
+                  key: use-ssl
+            - name: REST_API_ID
+              valueFrom:
+                secretKeyRef:
+                  name: connect
+                  key: rest-api-id

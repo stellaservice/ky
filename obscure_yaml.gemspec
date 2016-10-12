@@ -13,6 +13,9 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
   s.summary     = 'Obscure YAML produces and consumes obscure yaml via base64 encoding/decoding and referenced files'
   s.rubyforge_project = 'obscure_yaml'
+  s.require_paths = ['lib']
+  s.add_development_dependency 'rspec', '~> 3.5'
+  s.add_runtime_dependency 'deep_merge', '~> 1.1'
 
   s.description = <<-DESC
     There was no call for this really, except we needed it.

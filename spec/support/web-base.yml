@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: web
+  namespace: stg
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: connect-web
+    spec:
+      imagePullSecrets:
+        - name: stellaservice-dockerhub-key
+      containers:
+        - name: web
+          image: stellanetops/connect:staging
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          command: [ "/bin/bash","-c","bundle exec rake assets:precompile && bundle exec puma -C ./config/puma.rb" ]
