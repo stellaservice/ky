@@ -1,5 +1,5 @@
 require 'deep_merge'
-module ObscureYaml
+module KY
   module ManipulateYaml
     DEFAULT_DATA_KEY = 'data'
     MAGIC_DELIMITER = '@'
