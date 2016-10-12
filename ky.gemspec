@@ -1,24 +1,24 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib/', __FILE__)
 $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
-require 'obscure_yaml/version'
+require 'ky/version'
 
 Gem::Specification.new do |s|
-  s.name        = 'obscure_yaml'
-  s.version     = ObscureYaml::VERSION
+  s.name        = 'KY'
+  s.version     = KY::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Brian Glusman']
   s.email       = ['brian@stellaservice.com']
-  s.homepage    = 'https://github.com/stellaservice/obscure_yaml'
+  s.homepage    = 'https://github.com/stellaservice/ky'
   s.license     = 'MIT'
-  s.summary     = 'Obscure YAML produces and consumes obscure yaml via base64 encoding/decoding and referenced files'
-  s.rubyforge_project = 'obscure_yaml'
+  s.summary     = 'Kubernetes Yaml utilities and lubricant'
+  s.rubyforge_project = 'ky'
   s.require_paths = ['lib']
   s.add_development_dependency 'rspec', '~> 3.5'
   s.add_runtime_dependency 'deep_merge', '~> 1.1'
 
   s.description = <<-DESC
-    There was no call for this really, except we needed it.
+    Utility belt for managing, manipulating and lubricating kubernetes deployment, config and secrets yml files
   DESC
 
   s.files         = `git ls-files`.split("\n")

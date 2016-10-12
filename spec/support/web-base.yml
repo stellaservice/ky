@@ -10,11 +10,9 @@ spec:
       labels:
         app: connect-web
     spec:
-      imagePullSecrets:
-        - name: stellaservice-dockerhub-key
       containers:
         - name: web
-          image: stellanetops/connect:staging
+          image: docker/image
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

@@ -1,8 +1,8 @@
 require 'yaml'
 require 'base64'
 require 'open-uri'
-require_relative 'obscure_yaml/manipulate_yaml'
-module ObscureYaml
+require_relative 'ky/manipulate_yaml'
+module KY
   module_function
 
   def decode(output, input)

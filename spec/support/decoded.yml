@@ -5,5 +5,5 @@ metadata:
   name: test
 type: Opaque
 data:
-  aws-access-key-id: FAKEKEY
-  aws-api-access-key-id: FAKESECRETKEY
+  database-url: postgres://user:pass@db.example.com/db
+  pii-encryption-key: fakekey

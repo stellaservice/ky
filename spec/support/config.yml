@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: connect
+data:
+  tz: EST
+  rest-api-id: 1234abcd
+  use-ssl: true

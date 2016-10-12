@@ -1,5 +1,5 @@
-require_relative '../obscure_yaml'
-module ObscureYaml
+require_relative '../ky'
+module KY
   module Cli
     DECODE = 'decode'
     ENCODE = 'encode'
@@ -10,13 +10,13 @@ module ObscureYaml
       setup(arguments) do |mode, input_object, output_object|
         case mode
         when DECODE
-          ObscureYaml.decode(output_object, input_object)
+          KY.decode(output_object, input_object)
         when ENCODE
-          ObscureYaml.encode(output_object, input_object)
+          KY.encode(output_object, input_object)
         when MERGE
           input2 = arguments.first
           with(input2, 'r') do |input_object2|
-            ObscureYaml.merge(output_object, input_object, input_object2)
+            KY.merge(output_object, input_object, input_object2)
           end
         end
       end

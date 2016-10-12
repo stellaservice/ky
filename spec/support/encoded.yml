@@ -5,5 +5,5 @@ metadata:
   name: test
 type: Opaque
 data:
-  aws-access-key-id: RkFLRUtFWQ==
-  aws-api-access-key-id: RkFLRVNFQ1JFVEtFWQ==
+  database-url: cG9zdGdyZXM6Ly91c2VyOnBhc3NAZGIuZXhhbXBsZS5jb20vZGI=
+  pii-encryption-key: ZmFrZWtleQ==

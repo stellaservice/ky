@@ -1,5 +1,0 @@
-#!/usr/bin/env ruby
-require_relative '../lib/obscure_yaml/cli'
-
-ObscureYaml::Cli.parse(ARGV)
-

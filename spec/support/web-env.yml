@@ -2,19 +2,24 @@ spec:
   template:
     spec:
       containers:
-          - env:
+         - env:
             - name: TZ
               valueFrom:
                 configMapKeyRef:
-                  name: connect
+                  name: test
                   key: tz
             - name: USE_SSL
               valueFrom:
                 configMapKeyRef:
-                  name: connect
+                  name: test
                   key: use-ssl
-            - name: REST_API_ID
+            - name: PII_ENCRYPTION_KEY
               valueFrom:
                 secretKeyRef:
-                  name: connect
-                  key: rest-api-id
+                  name: test
+                  key: pii-encryption-key
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: test
+                  key: database-url

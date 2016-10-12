@@ -11,11 +11,9 @@ spec:
       labels:
         app: connect-web
     spec:
-      imagePullSecrets:
-      - name: stellaservice-dockerhub-key
       containers:
       - name: web
-        image: stellanetops/connect:staging
+        image: docker/image
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -27,15 +25,20 @@ spec:
         - name: TZ
           valueFrom:
             configMapKeyRef:
-              name: connect
+              name: test
               key: tz
         - name: USE_SSL
           valueFrom:
             configMapKeyRef:
-              name: connect
+              name: test
               key: use-ssl
-        - name: REST_API_ID
+        - name: PII_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: connect
-              key: rest-api-id
+              name: test
+              key: pii-encryption-key
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: test
+              key: database-url
