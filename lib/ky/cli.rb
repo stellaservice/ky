@@ -1,39 +1,32 @@
 require_relative '../ky'
+require 'thor'
 module KY
-  module Cli
-    DECODE = 'decode'
-    ENCODE = 'encode'
-    MERGE  = 'merge'
-    module_function
-
-    def parse(arguments)
-      setup(arguments) do |mode, input_object, output_object|
-        case mode
-        when DECODE
-          KY.decode(output_object, input_object)
-        when ENCODE
-          KY.encode(output_object, input_object)
-        when MERGE
-          input2 = arguments.first
-          with(input2, 'r') do |input_object2|
-            KY.merge(output_object, input_object, input_object2)
-          end
-        end
+  class Cli < Thor
+    desc "encode secrets.yml", "base64 encoded yaml version of data attributes in secrets.yml"
+    def encode(input_source=$stdin, output_source=$stdout)
+      input_output(input_source, output_source) do |input_object, output_object|
+        KY.encode(output_object, input_object)
       end
     end
 
-    def setup(arguments)
-      mode = arguments.shift
-      input = arguments.shift || $stdin
-      with(input, 'r') {|input_object| with(output(mode, arguments), 'w+') { |output_object| yield(mode, input_object, output_object)  } }
+    desc "decode secrets.yml", "decoded yaml version of secrets.yml with base64 encoded data attributes"
+    def decode(input_source=$stdin, output_source=$stdout)
+      input_output(input_source, output_source) do |input_object, output_object|
+        KY.decode(output_object, input_object)
+      end
     end
 
-    def output(mode, arguments)
-      if mode != MERGE
-        arguments.shift || $stdout
-      else
-        arguments.last != arguments.first ? arguments.pop : $stdout
+    desc "merge base.yml env.yml", "deep merged/combined yaml of two seperate files"
+    def merge(input_source1, input_source2=$stdin, output_source=$stdout)
+      input_output(input_source1, output_source) do |input_object1, output_object|
+        with(input_source2, 'r') {|input_object2| KY.merge(output_object, input_object1, input_object2) }
       end
+    end
+
+    private
+
+    def input_output(input1, output1)
+      with(input1, 'r') {|input_object| with(output1, 'w+') { |output_object| yield(input_object, output_object)  } }
     end
 
     def with(output, mode)

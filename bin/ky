@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
 require_relative '../lib/ky/cli'
 
-KY::Cli.parse(ARGV)
+KY::Cli.start(ARGV)
 
