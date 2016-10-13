@@ -10,7 +10,7 @@ module KY
     end
 
     def self.generate_env(input1, input2)
-      new(input1, input2).to_yaml
+      new(input1, input2).to_h
     end
 
     attr_reader :config_hsh, :secret_hsh
@@ -21,15 +21,16 @@ module KY
       raise ConflictingProjectError.new("Config and Secret metadata names do not agree") unless secret_hsh[metadata][name] == project
     end
 
-    def to_yaml
-      output_hash(config_hsh[data].map {|key, _| config_env(project, key) } + secret_hsh[data].map {|key, _| secret_env(project, key) }).to_yaml
+    def to_h
+      output_hash(config_hsh[data].map {|key, _| config_env(project, key) } + secret_hsh[data].map {|key, _| secret_env(project, key) })
     end
-
-    private
 
     def project
        config_hsh[metadata][name]
     end
+
+    private
+
 
     def config_env(project, kebab_version)
       env_map(config_map_key_ref, project, kebab_version)

@@ -3,7 +3,7 @@ module KY
   module Manipulation
     DEFAULT_DATA_KEY = 'data'
     MAGIC_DELIMITER = '@'
-
+    BASE_64_DETECTION_REGEX = /^([A-Za-z0-9+]{4})*([A-Za-z0-9+]{4}|[A-Za-z0-9+]{3}=|[A-Za-z0-9+]{2}==)$/
     class << self
       def merge_yaml(input1, input2)
         combined = {}
@@ -41,6 +41,16 @@ module KY
       def obscured_data_key
         ENV['DATA_KEY'] || DEFAULT_DATA_KEY
       end
+
+      def write_configs_encode_if_needed(config_hsh, secret_hsh, output_path)
+        if secret_hsh[obscured_data_key].values.detect {|value| BASE_64_DETECTION_REGEX =~ value }
+          File.write("#{output_path}/secret.yml", secret_hsh.to_yaml)
+        else
+          File.write("#{output_path}/secret.yml", code_yaml(StringIO.new(secret_hsh.to_yaml), :encode))
+        end
+        File.write("#{output_path}/config.yml", config_hsh.to_yaml)
+      end
+
     end
   end
 end

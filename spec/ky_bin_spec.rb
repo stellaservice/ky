@@ -58,5 +58,27 @@ describe "cli commands" do
     end
   end
 
+  describe "parses Procfile into multiple deployment files" do
+    let(:tmpdir) { 'spec/support/tmpdir' }
+    it "to directory" do
+      KY::Cli.new.from_proc('spec/support/Procfile', tmpdir)
+      expect(File.exists?("#{tmpdir}/web.yml")).to be true
+      expect(File.exists?("#{tmpdir}/worker.yml")).to be true
+      expect(File.exists?("#{tmpdir}/jobs.yml")).to be true
+      `rm -r #{tmpdir}`
+    end
+  end
+
+  describe "compiles Procfile and env secrets/configs into entire deployments" do
+    let(:tmpdir) { 'spec/support/tmpdir' }
+    it "to directory" do
+      KY::Cli.new.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+      expect(File.exists?("#{tmpdir}/web.yml")).to be true
+      expect(File.exists?("#{tmpdir}/worker.yml")).to be true
+      expect(File.exists?("#{tmpdir}/jobs.yml")).to be true
+      `rm -r #{tmpdir}`
+    end
+  end
+
 end
 

@@ -30,10 +30,27 @@ module KY
       end
     end
 
+    desc "from_proc Procfile.file output_dir", "generate kubernetes deployment base configs from Procfile to output_dir"
+    def from_proc(procfile_path, output_dir)
+      KY.from_proc(procfile_path, output_dir)
+    end
+
+    desc "compile Procfile.file config.yml secrets.yml output_dir", "generate kubernetes deployment configs from Procfile and env files to output_dir, encode secrets if unencoded"
+    method_option :namespace, type: :string, aliases: "-n"
+    def compile(procfile_path, config_or_secrets_path, secrets_or_config_path, output_dir)
+      input_input(config_or_secrets_path, secrets_or_config_path) do |input1, input2|
+        KY.compile(procfile_path, input1, input2, output_dir, options[:namespace])
+      end
+    end
+
     private
 
     def input_output(input1, output1)
       with(input1, 'r') {|input_object| with(output1, 'w+') { |output_object| yield(input_object, output_object)  } }
+    end
+
+    def input_input(input1, input2)
+      with(input1, 'r') {|input_object1| with(input2, 'r') { |input_object2| yield(input_object1, input_object2)  } }
     end
 
     def with(output, mode)
