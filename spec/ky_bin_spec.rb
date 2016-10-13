@@ -1,6 +1,6 @@
 require 'ky/cli'
 describe "cli commands" do
-let(:tmpfile_path) { "spec/support/tmpfile.yml" }
+  let(:tmpfile_path) { "spec/support/tmpfile.yml" }
   describe "works with stdout" do
     it "decodes" do
       output = File.read('spec/support/decoded.yml')
@@ -38,5 +38,27 @@ let(:tmpfile_path) { "spec/support/tmpfile.yml" }
       KY::Cli.new.merge('spec/support/web-base.yml', 'spec/support/web-env.yml')
     end
   end
+
+  describe "generates env section" do
+    it "to stdout" do
+      output = File.read('spec/support/web-env.yml')
+      expect($stdout).to receive(:<<).with(output)
+      KY::Cli.new.env('spec/support/decoded.yml', 'spec/support/config.yml')
+    end
+
+    it "config and secret are order independent" do
+      output = File.read('spec/support/web-env.yml')
+      expect($stdout).to receive(:<<).with(output)
+      KY::Cli.new.env('spec/support/config.yml', 'spec/support/decoded.yml')
+    end
+
+    it "to file" do
+      output = File.read('spec/support/web-env.yml')
+      KY::Cli.new.env('spec/support/config.yml', 'spec/support/decoded.yml', tmpfile_path)
+      expect(File.read(tmpfile_path)).to eq(output)
+      `rm #{tmpfile_path}`
+    end
+  end
+
 end
 

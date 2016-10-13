@@ -23,6 +23,13 @@ module KY
       end
     end
 
+    desc "env config.yml secrets.yml", "generate env variables section of a deployment from a config and a secrets file"
+    def env(input_source1, input_source2=$stdin, output_source=$stdout)
+      input_output(input_source1, output_source) do |input_object1, output_object|
+        with(input_source2, 'r') {|input_object2| KY.env(output_object, input_object1, input_object2) }
+      end
+    end
+
     private
 
     def input_output(input1, output1)

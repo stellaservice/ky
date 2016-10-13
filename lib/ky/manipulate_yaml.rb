@@ -1,4 +1,4 @@
-require 'deep_merge'
+require 'deep_merge/rails_compat'
 module KY
   module ManipulateYaml
     DEFAULT_DATA_KEY = 'data'
@@ -8,8 +8,7 @@ module KY
       def merge_yaml(input1, input2)
         combined = {}
         YAML.load(input1.read).tap { |hsh|
-          # require 'pry'; binding.pry
-          hsh.deep_merge!(YAML.load(input2.read), merge_hash_arrays: true, extend_existing_arrays: true)
+          hsh.deeper_merge!(YAML.load(input2.read), merge_hash_arrays: true, extend_existing_arrays: true)
         }.to_yaml
       end
 

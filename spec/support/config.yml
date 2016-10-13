@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: connect
+  name: test
 data:
   tz: EST
   rest-api-id: 1234abcd
