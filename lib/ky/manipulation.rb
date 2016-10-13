@@ -1,6 +1,6 @@
 require 'deep_merge/rails_compat'
 module KY
-  module ManipulateYaml
+  module Manipulation
     DEFAULT_DATA_KEY = 'data'
     MAGIC_DELIMITER = '@'
 
