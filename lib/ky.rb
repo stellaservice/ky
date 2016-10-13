@@ -2,7 +2,7 @@ require 'yaml'
 require 'base64'
 require 'open-uri'
 require_relative 'ky/manipulation'
-require_relative 'ky/generation'
+require_relative 'ky/env_generation'
 
 
 module KY
@@ -21,8 +21,8 @@ module KY
   end
 
   def env(output, input1, input2)
-    output << Generation.generate_env(input1, input2)
-  rescue KY::Generation::ConflictingProjectError => e
+    output << EnvGeneration.generate_env(input1, input2)
+  rescue KY::EnvGeneration::ConflictingProjectError => e
     $stderr << "Error processing yml files, please provide a config and a secrets file from the same kubernetes project/name"
     exit(1)
   end
