@@ -4,7 +4,7 @@ $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 require 'ky/version'
 
 Gem::Specification.new do |s|
-  s.name        = 'KY'
+  s.name        = 'ky'
   s.version     = KY::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Brian Glusman']
