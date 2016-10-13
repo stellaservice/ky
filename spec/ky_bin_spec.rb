@@ -1,6 +1,7 @@
 require 'ky/cli'
 describe "cli commands" do
   let(:tmpfile_path) { "spec/support/tmpfile.yml" }
+  after { `rm #{tmpfile_path}` if File.exists?(tmpfile_path) }
   describe "works with stdout" do
     it "decodes" do
       output = File.read('spec/support/decoded.yml')
@@ -20,14 +21,12 @@ describe "cli commands" do
       output = File.read('spec/support/decoded.yml')
       KY::Cli.new.decode("spec/support/encoded.yml", tmpfile_path)
       expect(File.read(tmpfile_path)).to eq(output)
-      `rm #{tmpfile_path}`
     end
 
     it "encodes" do
       output = File.read('spec/support/encoded.yml')
       KY::Cli.new.encode("spec/support/decoded.yml", tmpfile_path)
       expect(File.read(tmpfile_path)).to eq(output)
-      `rm #{tmpfile_path}`
     end
   end
 
@@ -56,7 +55,6 @@ describe "cli commands" do
       output = File.read('spec/support/web-env.yml')
       KY::Cli.new.env('spec/support/config.yml', 'spec/support/decoded.yml', tmpfile_path)
       expect(File.read(tmpfile_path)).to eq(output)
-      `rm #{tmpfile_path}`
     end
   end
 
