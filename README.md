@@ -2,7 +2,159 @@
 
 ## This gem contains helper methods and workflows for working with kubernetes yml files
 
-The initial functionality is/was encoding and decoding secrets.yml files, the data values of which must be base64 encoded. It will either read the value from a specified fle or use yaml value directly, and write the resulting data all to a single yaml file with base64 encoded values under a specfied key ('data' by default) for consistency.  Decoding always results in a single file, with escaped values as necessary.
+The primary purpose is to automate/DRY up duplication and agreement between multiple deployment YAML files and config/secret yaml files that we saw emerging as we built our kubernetes configuration.
+
+
+The typical workflow for the tool might start with generating a yaml file of env mappings from a secrets.yml file and a config.yml file, like so:
+###Example usage
+Assuming config.yml such as:
+```
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test
+data:
+  tz: EST
+  rest-api-id: 1234abcd
+  use-ssl: true
+```
+
+and secrets.yml such as:
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test
+type: Opaque
+data:
+  database-url: cG9zdGdyZXM6Ly91c2VyOnBhc3NAZGIuZXhhbXBsZS5jb20vZGI=
+  pii-encryption-key: ZmFrZWtleQ==
+```
+Then the command
+
+```
+$ ky env config.yml secrets.yml
+```
+
+Would yield
+```
+---
+spec:
+  template:
+    spec:
+      containers:
+      - env:
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: test
+              key: tz
+        - name: REST_API_ID
+          valueFrom:
+            configMapKeyRef:
+              name: test
+              key: rest-api-id
+        - name: USE_SSL
+          valueFrom:
+            configMapKeyRef:
+              name: test
+              key: use-ssl
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: test
+              key: database-url
+        - name: PII_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test
+              key: pii-encryption-key
+```
+
+You can also pass in a non-base64 encoded secrets.yml above, and use KY as documented below to generate the encoded version you use on demand as needed (just don't check in either one to your repo!)
+
+Then you can merge the generated file, we'll call `env.yml` below, with one or more base deployment YAML files, to help prevent duplication, and regenerating and applying to kubernetes hosts via kubectl as needed when env variable values or keys change.  So with the `env.yml` above and a `base.yml` like so:
+```
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: test
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: web
+          image: docker/image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          command: [ "/bin/bash","-c","bundle exec rake assets:precompile && bundle exec puma -C ./config/puma.rb" ]
+```
+then running this command:
+
+```
+$ ky merge base.yml env.yml # outputs combined yaml to stdout
+```
+
+Would yield:
+```
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: test
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web
+        image: docker/image
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        command:
+        - "/bin/bash"
+        - "-c"
+        - bundle exec rake assets:precompile && bundle exec puma -C ./config/puma.rb
+        env:
+        - name: TZ
+          valueFrom:
+            configMapKeyRef:
+              name: test
+              key: tz
+        - name: REST_API_ID
+          valueFrom:
+            configMapKeyRef:
+              name: test
+              key: rest-api-id
+        - name: USE_SSL
+          valueFrom:
+            configMapKeyRef:
+              name: test
+              key: use-ssl
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: test
+              key: database-url
+        - name: PII_ENCRYPTION_KEY
+          valueFrom:
+            secretKeyRef:
+              name: test
+              key: pii-encryption-key
+
+```
+(Note the formatting of some yaml syntax may be affected, such as command array using multiline list form instead of single line square bracket notation)
+
+Kubernetes requires its secrets.yml files to have their data values base64 encoded.  KY will either read the value from a specified fle or use yaml value directly, and write the resulting data all to a single yaml file with base64 encoded values under a specfied key ('data' by default) for consistency.  Decoding always results in a single file, with escaped values as necessary, but encoding can come from multiple files which all must be accessible to the process, either as local file references or as URL's it can read the file from at the moment it is run (S3 buckets can generate short lived unguessable URLs to help to this securely).
 
 Those long/unescaped values can be loaded from files referenced in the source yaml by wrapping in "magic" file/url delimiters, ('@' by default), e.g:
 ```yaml
@@ -31,11 +183,4 @@ $ cat file.yml | obscure decode # reads non-base64 input yaml from stdin, writes
 $ cat file.yml | obscure encode # reads base64 encoded input yaml from stdin, write encoded to stdout
 ```
 
-A valid url may also be used in place of a file path for input or output.
-
-It also supports merging YAML files, to help keep duplication separate, and merging as needed into combined files for applying to kubernetes hosts via kubectl:
-###Example usage
-```
-$ ky merge base.yml env.yml # outputs combined yaml to stdout
-$ ky merge base.yml env.yml deployment.yml  # outputs combined yml to deployment.yml file
-```
+A valid url may also be used in place of a file path for input.
