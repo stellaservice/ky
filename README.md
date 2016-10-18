@@ -7,6 +7,8 @@ The primary purpose is to automate/DRY up duplication and agreement between mult
 The full/hopeful use of the tool may be enabled with the new `compile` command which is very much a rough draft at present, but which takes a crack at generating a complete deployment yaml file for every line of a Procfile such as used for Heroku, and a pair of config and secrets files.  The secret file can be non-base64 encoded, and compile will generate deployments and a base64 encoded secrets file to a target directory specified.  This command uses all the below commands in combination, plus the undocumented `from_proc` command.  The command is invoked as:
 `ky compile Procfile.file config.yml secrets.yml output_dir` and the output directory will be created if necessary.  You may pass a namespace to compile which will be reflected in the deployments (and should agree with the config and secrets, though it's not checking they agree at present).
 
+Next pending feature is extracting templates to a real template engine as defaults, allow overriding, and also allow customizing the template in various ways for each deployment generated and/or per environment/namespace.  Tentative plan is to do templating with one of these two gems, https://github.com/markround/tiller or https://github.com/bmuller/configulator but if you have a preference (or want to PR doing this yourself however!) please speak up.
+
 The less automated workflow for the tool might start with generating a yaml file of env mappings from a secrets.yml file and a config.yml file, like so:
 ###Example usage
 Assuming config.yml such as:
