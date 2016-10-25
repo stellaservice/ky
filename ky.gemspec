@@ -16,9 +16,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.add_development_dependency 'rspec', '~> 3.5'
   s.add_development_dependency 'pry', '~> 0.10'
-  s.add_runtime_dependency 'deep_merge', '~> 1.1'
   s.add_runtime_dependency 'thor', '~> 0.19'
-  s.add_runtime_dependency 'activesupport', ">= 3.0", "< 6"
 
   s.description = <<-DESC
     Utility belt for managing, manipulating and lubricating kubernetes deployment, config and secrets yml files

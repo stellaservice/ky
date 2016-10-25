@@ -1,0 +1,16 @@
+apiVersion: <%= api_version %>
+kind: Deployment
+metadata:
+  name: <%= project_name %>
+  namespace: <%= namespace %>
+spec:
+  replicas: <%= replica_count %>
+  template:
+    metadata:
+      labels:
+        app: <%= app_name %>
+    spec:
+      containers:
+        - name: web
+          image: docker/image
+          imagePullPolicy: <% image_pull_policy %>

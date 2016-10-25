@@ -37,7 +37,9 @@ module KY
 
     desc "compile Procfile.file config.yml secrets.yml output_dir", "generate kubernetes deployment configs from Procfile and env files to output_dir, encode secrets if unencoded"
     method_option :namespace, type: :string, aliases: "-n"
+    method_option :environment, type: :string, aliases: "-e"
     def compile(procfile_path, config_or_secrets_path, secrets_or_config_path, output_dir)
+      KY.environment = options[:environment]
       input_input(config_or_secrets_path, secrets_or_config_path) do |input1, input2|
         KY.compile(procfile_path, input1, input2, output_dir, options[:namespace])
       end
