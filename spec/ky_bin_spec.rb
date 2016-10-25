@@ -1,6 +1,12 @@
 require 'ky/cli'
 describe "cli commands" do
   let(:tmpfile_path) { "spec/support/tmpfile.yml" }
+  before do
+    normal_config = KY::DEFAULT_CONFIG
+    KY.define_methods_from_config(normal_config)
+    allow(KY).to receive(:configuration).and_return(normal_config.merge(inline_config: false))
+  end
+
   after { `rm #{tmpfile_path}` if File.exists?(tmpfile_path) }
   describe "works with stdout" do
     it "decodes" do

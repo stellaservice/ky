@@ -14,7 +14,10 @@ Configuration begins with  a config file in the project working directory, or in
   image_pull_policy: "Always",
   namespace: "default",
   image_type: "docker/image",
-  api_version: "extensions/v1beta1"
+  api_version: "extensions/v1beta1",
+  inline_config: true,
+  inline_secret: false,
+  project_name: "global"
 ```
 
 Override any or all of these in your file, and the environments files will also prompt KY to look for files named `development.yml` or `development.yaml` in the same directory as the config file itself, if you override environments as `[development]`, or whatever/however many environments as you name.

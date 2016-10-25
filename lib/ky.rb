@@ -17,6 +17,8 @@ module KY
     namespace: "default",
     image_type: "docker/image",
     api_version: "extensions/v1beta1",
+    inline_config: true,
+    inline_secret: false,
     project_name: "global"
   }
 
