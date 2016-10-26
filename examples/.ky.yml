@@ -13,3 +13,11 @@ config_path: "spec/support/config.yml"
 secret_path: "spec/support/decoded.yml"
 output_dir: "namespaces"
 procfile_path: "spec/support/Procfile"
+merge:
+  web:
+    spec:
+      template:
+        spec:
+          containers:
+            - ports:
+              - containerPort: 3000

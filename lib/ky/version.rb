@@ -1,3 +1,3 @@
 module KY
-  VERSION = "0.3.0beta1"
+  VERSION = "0.3.0"
 end

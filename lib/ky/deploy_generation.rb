@@ -41,7 +41,12 @@ module KY
     def template_hash(id, command_array)
       app_name =  KY.configuration['app_name'] || "#{project_name}-#{id}"
       template_context = Template.context(app_name: app_name, id: id, command_array: command_array)
-      YAML.load(ERB.new(deployment_yaml).result(template_context))
+      Manipulation.merge_hash(
+        YAML.load(
+          ERB.new(deployment_yaml).result(template_context)
+        ),
+        KY.deploy_merge(id)
+      )
     end
   end
 end

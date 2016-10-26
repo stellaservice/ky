@@ -67,6 +67,11 @@ module KY
     end
   end
 
+  def deploy_merge(id)
+    return {} unless configuration["merge"]
+    configuration["merge"][id].to_h
+  end
+
   def current_environment_hash(partial_config=nil)
     YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })) rescue {}
   end
