@@ -41,8 +41,10 @@ module KY
     DOC
     method_option :namespace, type: :string, aliases: "-n"
     method_option :environment, type: :string, aliases: "-e"
+    method_option :image_tag, type: :string, aliases: "-t"
     def compile(procfile_path=nil, config_or_secrets_path=nil, secrets_or_config_path=nil, output_dir=nil)
       KY.environment = options[:environment]
+      KY.image_tag   = options[:image_tag]
       procfile_path ||= KY.configuration['procfile_path']
       config_or_secrets_path  ||= KY.configuration['config_path'] || KY.configuration['secret_path']
       secrets_or_config_path  ||= KY.configuration['secret_path'] || KY.configuration['config_path']

@@ -26,7 +26,7 @@ module KY
   }
 
   module_function
-  cattr_accessor :environment
+  cattr_accessor :environment, :image_tag
 
   def decode(output, input)
     output << Manipulation.code_yaml(input, :decode)
@@ -73,7 +73,8 @@ module KY
   end
 
   def current_environment_hash(partial_config=nil)
-    YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })) rescue {}
+    hsh = YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })) rescue {} # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
+    image_tag ? hsh.merge("configuration" => {"image_tag" => image_tag}) : hsh
   end
 
   def environment_files(partial_config=nil)
