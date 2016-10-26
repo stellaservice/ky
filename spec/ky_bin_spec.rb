@@ -1,7 +1,7 @@
 require 'ky/cli'
 describe "cli commands" do
   let(:tmpfile_path) { "spec/support/tmpfile.yml" }
-  before do
+  before do # for backwards compatible with old non-inlining test/support behavior
     normal_config = KY::DEFAULT_CONFIG
     KY.define_methods_from_config(normal_config)
     allow(KY).to receive(:configuration).and_return(normal_config.merge(inline_config: false))
@@ -61,17 +61,6 @@ describe "cli commands" do
       output = File.read('spec/support/web-env.yml')
       KY::Cli.new.env('spec/support/config.yml', 'spec/support/decoded.yml', tmpfile_path)
       expect(File.read(tmpfile_path)).to eq(output)
-    end
-  end
-
-  describe "parses Procfile into multiple deployment files" do
-    let(:tmpdir) { 'spec/support/tmpdir' }
-    it "to directory" do
-      KY::Cli.new.from_proc('spec/support/Procfile', tmpdir)
-      expect(File.exists?("#{tmpdir}/web.yml")).to be true
-      expect(File.exists?("#{tmpdir}/worker.yml")).to be true
-      expect(File.exists?("#{tmpdir}/jobs.yml")).to be true
-      `rm -r #{tmpdir}`
     end
   end
 

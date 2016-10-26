@@ -2,6 +2,7 @@ require_relative '../ky'
 require 'thor'
 module KY
   class Cli < Thor
+    MissingParametersError = Class.new(StandardError)
     desc "encode secrets.yml", "base64 encoded yaml version of data attributes in secrets.yml"
     def encode(input_source=$stdin, output_source=$stdout)
       input_output(input_source, output_source) do |input_object, output_object|
@@ -30,16 +31,22 @@ module KY
       end
     end
 
-    desc "from_proc Procfile.file output_dir", "generate kubernetes deployment base configs from Procfile to output_dir"
-    def from_proc(procfile_path, output_dir)
-      KY.from_proc(procfile_path, output_dir)
-    end
-
-    desc "compile Procfile.file config.yml secrets.yml output_dir", "generate kubernetes deployment configs from Procfile and env files to output_dir, encode secrets if unencoded"
+    desc "compile Procfile.file config.yml secrets.yml output_dir", <<-DOC
+    Generate kubernetes deployment.yml from Procfile and env files to output_dir, encode secrets if unencoded.
+    Procfile path may also be specified in configuration as procfile_path
+    ConfigMap.yml file path may also be specified in configuration as config_path
+    secrets.yml file path may also be specified in configuration as secret_path
+    Output directory may also be specified in configuration as output_dir
+    DOC
     method_option :namespace, type: :string, aliases: "-n"
     method_option :environment, type: :string, aliases: "-e"
-    def compile(procfile_path, config_or_secrets_path, secrets_or_config_path, output_dir)
+    def compile(procfile_path=nil, config_or_secrets_path=nil, secrets_or_config_path=nil, output_dir=nil)
       KY.environment = options[:environment]
+      procfile_path ||= KY.configuration['procfile_path']
+      config_or_secrets_path  ||= KY.configuration['config_path'] || KY.configuration['secret_path']
+      secrets_or_config_path  ||= KY.configuration['secret_path'] || KY.configuration['config_path']
+      output_dir ||= KY.configuration['output_dir']
+      raise MissingParametersError unless procfile_path && config_or_secrets_path && secrets_or_config_path && output_dir
       input_input(config_or_secrets_path, secrets_or_config_path) do |input1, input2|
         KY.compile(procfile_path, input1, input2, output_dir, options[:namespace])
       end
