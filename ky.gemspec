@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 3.5'
   s.add_development_dependency 'pry', '~> 0.10'
   s.add_runtime_dependency 'thor', '~> 0.19'
+  s.add_runtime_dependency 'deep_merge', '~> 1.1'
 
   s.description = <<-DESC
     Utility belt for generating kubernetes deployment, config and secrets yml files
