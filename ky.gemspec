@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'thor', '~> 0.19'
 
   s.description = <<-DESC
-    Utility belt for managing, manipulating and lubricating kubernetes deployment, config and secrets yml files
+    Utility belt for generating kubernetes deployment, config and secrets yml files
   DESC
 
   s.files         = `git ls-files`.split("\n")

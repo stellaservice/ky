@@ -9,20 +9,21 @@ The full/hopeful use of the tool may be enabled with the new `compile` command w
 The command is invoked as:
 `ky compile Procfile.file config.yml secrets.yml output_dir` and the output directory will be created if necessary.  You may pass a namespace to compile which will be reflected in the deployments (and should agree with the config and secrets, though it's not checking they agree at present).  The arguments are all configurable via the configuration file as well, so it can in practice be invoked as `ky compile` or `kky compile --envioronment stg` if you have a configuration file correctly present as described below.
 
-Configuration begins with  a config file in the project working directory, or in your home directory if you wish to share across several projects.  Unfortunately there are several competing conventions for configuration files, the traditional dot-file configuration convention and newer, more visible Capitalfile configuration.  KY is a lubricant, and has no opinion, and therefore currently supports naming your configuration file `.ky.yml`, `.ky.yaml`, or `Lubefile` or `Kyfile`.  The default configuration, if this file is not found, is as follows:
+Configuration begins with a config file in the project working directory, or in your home directory if you wish to share across several projects.  Unfortunately there are several competing conventions for configuration files, the traditional dot-file configuration convention and newer, more visible Capitalfile configuration.  KY is a lubricant, and has no opinion, and therefore currently supports naming your configuration file `.ky.yml`, `.ky.yaml`, or `Lubefile` or `Kyfile`.  The default configuration, if this file is not found, is as follows:
 ```
-  environments: [],
-  replica_count: 1,
-  image_pull_policy: "Always",
-  namespace: "default",
-  image_type: "docker/image",
-  api_version: "extensions/v1beta1",
-  inline_config: true,
-  inline_secret: false,
+  environments: []
+  replica_count: 1
+  image_pull_policy: "Always"
+  namespace: "default"
+  image: "<YOUR_DOCKER_IMAGE>"
+  image_tag: latest
+  api_version: "extensions/v1beta1"
+  inline_config: true
+  inline_secret: false
   project_name: "global"
 ```
 
-Override any or all of these in your file, and the environments files will also prompt KY to look for files named `development.yml` or `development.yaml` in the same directory as the config file itself, if you override environments as `[development]`, or whatever/however many environments as you name.
+Override any or all of these in your file, and the environments files will also prompt KY to look for files named `development.yml` or `development.yaml` in the same directory as the config file itself, if you override environments as `[development]`, or whatever/however many environments as you name. When running a specific environment, configuration from the specific environment will override your global defaults.
 
 The less automated workflow for the tool might start with generating a yaml file of env mappings from a secrets.yml file and a config.yml file, like so:
 ###Example usage
@@ -107,7 +108,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: docker/image
+          image: docker_image
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
@@ -135,7 +136,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: docker/image
+        image: docker_image
         imagePullPolicy: Always
         ports:
         - containerPort: 3000

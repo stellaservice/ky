@@ -8,7 +8,7 @@ module KY
       @full_output_dir = full_output_dir
       @project_name = project_name || KY.configuration[:project_name]
       @current_namespace = current_namespace || KY.configuration[:namespace]
-      @deployment_yaml = KY.current_deployment ? KY.current_deployment.to_yaml : File.read(default_deployment_template)
+      @deployment_yaml = read_deployment_yaml
     end
 
     def call
@@ -25,6 +25,14 @@ module KY
 
     private
     attr_reader :proc_commands, :full_output_dir, :project_name, :current_namespace, :deployment_yaml
+
+    def read_deployment_yaml
+      if KY.configuration['deployment']
+        File.read(KY.configuration['deployment'])
+      else
+        File.read(default_deployment_template)
+      end
+    end
 
     def default_deployment_template
       "#{__dir__}/../../templates/deployment.yml"

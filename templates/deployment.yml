@@ -12,6 +12,6 @@ spec:
     spec:
       containers:
         - name: web
-          image: docker/image
+          image: <%= image %>:<%= image_tag %>
           imagePullPolicy: <%= image_pull_policy %>
           command: <%= command_array.to_s %>

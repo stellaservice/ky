@@ -31,8 +31,9 @@ module KY
       end
     end
 
-    desc "compile Procfile.file config.yml secrets.yml output_dir", <<-DOC
-    Generate kubernetes deployment.yml from Procfile and env files to output_dir, encode secrets if unencoded.
+    desc "compile Procfile config.yml secrets.yml output", <<-DOC.strip_heredoc
+    Generate kubernetes deployment.yml from Procfile;
+    also generate/copy config/secrets files to output_dir, base64 encode secrets if unencoded.
     Procfile path may also be specified in configuration as procfile_path
     ConfigMap.yml file path may also be specified in configuration as config_path
     secrets.yml file path may also be specified in configuration as secret_path
@@ -58,6 +59,10 @@ module KY
       `cp #{__dir__}/../../examples/dev.yml .`
       puts "Writing .ky.yml configuration example"
       `cp #{__dir__}/../../examples/.ky.yml .`
+      puts "Writing deployment_base.yml template example"
+      `cp #{__dir__}/../../examples/deployment_base.yml .`
+      puts "Writing dev.deployment.yml template-override example"
+      `cp #{__dir__}/../../examples/dev.deployment.yml .`
     end
 
     private

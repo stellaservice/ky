@@ -1,8 +1,10 @@
 environments: [dev, stg, prd]
+deployment: examples/deployment_base.yml
 replica_count: 2
 image_pull_policy: "IfNotPresent"
 namespace: "default"
-image_type: "docker/image"
+image: "organization/project"
+image_tag: "latest"
 api_version: "extensions/v1beta1"
 inline_config: true
 inline_secret: false

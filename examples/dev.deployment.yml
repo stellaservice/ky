@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: <%= id %>
+spec:
+  replicas: <%= replica_count %>
+  template:
+    metadata:
+      labels:
+        app: example-<%= id %>
+    spec:
+      volumes:
+        - name: code
+          persistentVolumeClaim:
+            claimName: code-claim
+      containers:
+        - name: web
+          image: project_dev:latest
+          imagePullPolicy: Always
+          command: <%= command_array.to_s %>
+          volumeMounts:
+            - mountPath: /code
+              name: code
