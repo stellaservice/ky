@@ -52,7 +52,7 @@ module KY
         else
           File.write("#{output_path}/secret.yml", code_yaml(StringIO.new(secret_hsh.to_yaml), :encode))
         end
-        File.write("#{output_path}/config.yml", config_hsh.to_yaml)
+        File.write("#{output_path}/configmap.yml", config_hsh.to_yaml)
       end
 
     end
