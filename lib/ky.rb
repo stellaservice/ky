@@ -5,6 +5,7 @@ require 'fileutils'
 require 'pathname'
 require_relative 'ky/manipulation'
 require_relative 'ky/env_generation'
+require_relative 'ky/template'
 require_relative 'ky/deploy_generation'
 
 
@@ -51,7 +52,7 @@ module KY
     env_obj = EnvGeneration.new(env1path, env2path)
     deploys_hash = DeployGeneration.new(proc_path, full_output_dir, env_obj.project, namespace).to_h
     deploys_hash.each do |file_path, deploy_hash|
-      File.write(file_path, deploy_hash.merge(env_obj.to_h).to_yaml)
+      File.write(file_path, Manipulation.merge_hash(deploy_hash, env_obj.to_h).to_yaml)
     end
     Manipulation.write_configs_encode_if_needed(env_obj.config_hsh, env_obj.secret_hsh, full_output_dir)
   end
@@ -70,11 +71,11 @@ module KY
   end
 
   def current_environment_hash(partial_config=nil)
-    YAML.load(KY.environment_files(partial_config).find {|file| file.match(KY.environment) }) rescue {}
+    YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })) rescue {}
   end
 
   def environment_files(partial_config=nil)
-    environments = (partial_config || configuration)[:environments].flat_map {|env| ["#{env}.yml", "#{env}.yaml"]}
+    environments = (partial_config || configuration)['environments'].flat_map {|env| ["#{env}.yml", "#{env}.yaml"]}
     (CONFIG_LOCATIONS * environments.count).zip(environments).map(&:join).select {|path| File.exist?(path) && !File.directory?(path) }
   end
 
@@ -84,7 +85,7 @@ module KY
 
   def define_methods_from_config(config)
     config.keys.each do |key|
-      DeployGeneration.send(:define_method, key) { config[key] }
+      Template.send(:define_method, key) { config[key] }
     end
   end
 

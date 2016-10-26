@@ -1,0 +1,22 @@
+configuration:
+  replica_count: 1
+  inline_secret: true
+deployment:
+  apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    name: web
+  spec:
+    replicas: 1
+    template:
+      metadata:
+        labels:
+          app: example-web
+      spec:
+        containers:
+          - name: web
+            image: docker/image
+            imagePullPolicy: Always
+            ports:
+              - containerPort: 3000
+            command: [ "/bin/bash","-c","bundle exec rake assets:precompile && bundle exec puma -C ./config/puma-dev.rb" ]

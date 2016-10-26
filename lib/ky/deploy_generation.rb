@@ -8,7 +8,7 @@ module KY
       @full_output_dir = full_output_dir
       @project_name = project_name || KY.configuration[:project_name]
       @current_namespace = current_namespace || KY.configuration[:namespace]
-      @deloyment_path = KY.current_deployment || default_deployment_template
+      @deployment_yaml = KY.current_deployment ? KY.current_deployment.to_yaml : File.read(default_deployment_template)
     end
 
     def call
@@ -24,7 +24,7 @@ module KY
     end
 
     private
-    attr_reader :proc_commands, :full_output_dir, :project_name, :current_namespace, :deloyment_path
+    attr_reader :proc_commands, :full_output_dir, :project_name, :current_namespace, :deployment_yaml
 
     def default_deployment_template
       "#{__dir__}/../../templates/deployment.yml"
@@ -32,7 +32,8 @@ module KY
 
     def template_hash(id, command_array)
       app_name =  KY.configuration['app_name'] || "#{project_name}-#{id}"
-      YAML.load(ERB.new(File.read(deloyment_path)).result(binding))
+      template_context = Template.context(app_name: app_name, id: id, command_array: command_array)
+      YAML.load(ERB.new(deployment_yaml).result(template_context))
     end
   end
 end

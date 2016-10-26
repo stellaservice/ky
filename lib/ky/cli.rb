@@ -52,6 +52,14 @@ module KY
       end
     end
 
+    desc "example", "copy example configuration and environment override file to current directory"
+    def example
+      puts "Writing dev.yml environment example"
+      `cp #{__dir__}/../../examples/dev.yml .`
+      puts "Writing .ky.yml configuration example"
+      `cp #{__dir__}/../../examples/.ky.yml .`
+    end
+
     private
 
     def input_output(input1, output1)

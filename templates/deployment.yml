@@ -13,4 +13,5 @@ spec:
       containers:
         - name: web
           image: docker/image
-          imagePullPolicy: <% image_pull_policy %>
+          imagePullPolicy: <%= image_pull_policy %>
+          command: <%= command_array.to_s %>
