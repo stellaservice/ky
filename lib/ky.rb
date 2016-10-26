@@ -67,10 +67,6 @@ module KY
     end
   end
 
-  def current_deployment
-    current_environment_hash["deployment"]
-  end
-
   def current_environment_hash(partial_config=nil)
     YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })) rescue {}
   end
