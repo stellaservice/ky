@@ -19,7 +19,7 @@ module KY
 
     def to_h
       proc_commands.map do |id, command_array|
-        ["#{full_output_dir}/#{id}-deployment.yml", template_hash(id, command_array)]
+        ["#{full_output_dir}/#{id}.deployment.yml", template_hash(id, command_array)]
       end.to_h
     end
 

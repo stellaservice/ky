@@ -68,9 +68,9 @@ describe "cli commands" do
     let(:tmpdir) { 'spec/support/tmpdir' }
     it "to directory" do
       KY::Cli.new.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
-      expect(File.exists?("#{tmpdir}/web-deployment.yml")).to be true
-      expect(File.exists?("#{tmpdir}/worker-deployment.yml")).to be true
-      expect(File.exists?("#{tmpdir}/jobs-deployment.yml")).to be true
+      expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
+      expect(File.exists?("#{tmpdir}/worker.deployment.yml")).to be true
+      expect(File.exists?("#{tmpdir}/jobs.deployment.yml")).to be true
       `rm -r #{tmpdir}`
     end
   end

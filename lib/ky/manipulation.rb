@@ -46,13 +46,13 @@ module KY
         ENV['DATA_KEY'] || DEFAULT_DATA_KEY
       end
 
-      def write_configs_encode_if_needed(config_hsh, secret_hsh, output_path)
+      def write_configs_encode_if_needed(config_hsh, secret_hsh, output_path, project_name)
         if secret_hsh[obscured_data_key].values.detect {|value| BASE_64_DETECTION_REGEX =~ value }
-          File.write("#{output_path}/secret.yml", secret_hsh.to_yaml)
+          File.write("#{output_path}/#{project_name}.secret.yml", secret_hsh.to_yaml)
         else
-          File.write("#{output_path}/secret.yml", code_yaml(StringIO.new(secret_hsh.to_yaml), :encode))
+          File.write("#{output_path}/#{project_name}.secret.yml", code_yaml(StringIO.new(secret_hsh.to_yaml), :encode))
         end
-        File.write("#{output_path}/configmap.yml", config_hsh.to_yaml)
+        File.write("#{output_path}/#{project_name}.configmap.yml", config_hsh.to_yaml)
       end
 
     end

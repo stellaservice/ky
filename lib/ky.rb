@@ -23,7 +23,7 @@ module KY
     inline_config: true,
     inline_secret: false,
     project_name: "global"
-  }
+  }.stringify_keys
 
   module_function
   cattr_accessor :environment, :image_tag
@@ -55,7 +55,7 @@ module KY
     deploys_hash.each do |file_path, deploy_hash|
       File.write(file_path, Manipulation.merge_hash(deploy_hash, env_obj.to_h).to_yaml)
     end
-    Manipulation.write_configs_encode_if_needed(env_obj.config_hsh, env_obj.secret_hsh, full_output_dir)
+    Manipulation.write_configs_encode_if_needed(env_obj.config_hsh, env_obj.secret_hsh, full_output_dir, configuration["project_name"])
   end
 
   def configuration
