@@ -43,16 +43,14 @@ class KY
     method_option :environment, type: :string, aliases: "-e"
     method_option :image_tag, type: :string, aliases: "-t"
     def compile(procfile_path=nil, config_or_secrets_path=nil, secrets_or_config_path=nil, output_dir=nil)
-      instance = KY.new
-      instance.environment = options[:environment]
-      instance.image_tag   = options[:image_tag]
+      instance = KY.new(options.with_indifferent_access)
       procfile_path ||= instance.configuration['procfile_path']
       config_or_secrets_path  ||= instance.configuration['config_path'] || instance.configuration['secret_path']
       secrets_or_config_path  ||= instance.configuration['secret_path'] || instance.configuration['config_path']
       output_dir ||= instance.configuration['output_dir']
       raise MissingParametersError unless procfile_path && config_or_secrets_path && secrets_or_config_path && output_dir
       input_input(config_or_secrets_path, secrets_or_config_path) do |input1, input2|
-        instance.compile(procfile_path, input1, input2, output_dir, options[:namespace])
+        instance.compile(procfile_path, input1, input2, output_dir)
       end
     end
 

@@ -61,11 +61,11 @@ describe "ky cli" do
     end
   end
 
-  describe "primary cli command" do
+  describe "primary cli command generates and" do
     let(:instance) { KY.new }
     let(:fake_tag) { 'fake_tag' }
     let(:tmpdir) { 'spec/support/tmpdir' }
-    after { `rm -r #{tmpdir}` ; instance.environment = nil ; instance.image_tag = nil }
+    # after { `rm -r #{tmpdir}` }
     describe "compiles Procfile and env secrets/configs into entire deployments" do
       it "to directory" do
         KY::Cli.new.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
@@ -99,10 +99,19 @@ describe "ky cli" do
     end
 
     describe "uses image_tag when passed in as option" do
-      let(:tmpdir) { 'spec/support/tmp2dir' }
       it "to directory" do
         instance = KY::Cli.new
         instance.options = {image_tag: fake_tag}
+        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
+        expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)
+      end
+    end
+
+    describe "uses namespace when passed in as option" do
+      it "to directory" do
+        instance = KY::Cli.new
+        instance.options = {namespace: fake_tag}
         instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)

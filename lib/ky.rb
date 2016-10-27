@@ -25,7 +25,11 @@ class KY
     project_name: "global"
   }.with_indifferent_access
 
-  attr_accessor :environment, :image_tag
+  attr_reader :opts
+
+  def initialize(opts={})
+    @opts=opts
+  end
 
   def decode(output, input)
     output << Manipulation.code_yaml(input, :decode)
@@ -46,11 +50,11 @@ class KY
     exit(1)
   end
 
-  def compile(proc_path, env1path, env2path, base_output_dir, namespace=DeployGeneration::DEFAULT_NAMESPACE)
-    full_output_dir = Pathname.new(base_output_dir).join(environment.to_s).to_s
+  def compile(proc_path, env1path, env2path, base_output_dir)
+    full_output_dir = Pathname.new(base_output_dir).join(configuration[:environment].to_s).to_s
     FileUtils.mkdir_p(full_output_dir)
     env_obj = EnvGeneration.new(self, env1path, env2path)
-    deploys_hash = DeployGeneration.new(self, proc_path, full_output_dir, env_obj.project, namespace).to_h
+    deploys_hash = DeployGeneration.new(self, proc_path, full_output_dir, env_obj.project, configuration[:namespace]).to_h
     deploys_hash.each do |file_path, deploy_hash|
       File.write(file_path, Manipulation.merge_hash(deploy_hash, env_obj.to_h).to_yaml)
     end
@@ -59,25 +63,25 @@ class KY
 
   def configuration
     @config ||= begin
-      config = DEFAULT_CONFIG.merge(config_file_location ? YAML.load(File.read(config_file_location)) : {})
-      config = config.merge(current_environment_hash(config)["configuration"] || {})
+      config = DEFAULT_CONFIG.merge(config_file_location ? YAML.load(File.read(config_file_location)).with_indifferent_access : {})
+      config = config.merge(current_environment_hash(config)[:configuration] || {})
       define_methods_from_config(config)
       config
     end
   end
 
   def deploy_merge(id)
-    return {} unless configuration["merge"]
-    configuration["merge"][id].to_h
+    return {} unless configuration[:merge]
+    configuration[:merge][id].to_h
   end
 
   def current_environment_hash(partial_config=nil)
-    hsh = YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })) rescue {} # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
-    image_tag ? hsh.merge("configuration" => {"image_tag" => image_tag}) : hsh
+    hsh = YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })).with_indifferent_access rescue {} # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
+    hsh.merge(:configuration => opts).with_indifferent_access
   end
 
   def environment_files(partial_config=nil)
-    environments = (partial_config || configuration)['environments'].flat_map {|env| ["#{env}.yml", "#{env}.yaml"]}
+    environments = (partial_config || configuration)[:environments].flat_map {|env| ["#{env}.yml", "#{env}.yaml"]}
     (CONFIG_LOCATIONS * environments.count).zip(environments).map(&:join).select {|path| File.exist?(path) && !File.directory?(path) }
   end
 
