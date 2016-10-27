@@ -76,7 +76,7 @@ class KY
   end
 
   def current_environment_hash(partial_config=nil)
-    hsh = YAML.load(File.read(KY.environment_files(partial_config).find {|file| file.match(KY.environment) })).with_indifferent_access rescue {} # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
+    hsh = YAML.load(File.read(environment_files(partial_config).find {|file| file.match(KY.environment) })).with_indifferent_access rescue {} # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
     hsh.merge(:configuration => opts).with_indifferent_access
   end
 
