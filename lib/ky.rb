@@ -9,7 +9,7 @@ require_relative 'ky/template'
 require_relative 'ky/deploy_generation'
 
 
-module KY
+class KY
   CONFIG_FILE_NAMES = [".ky.yml", ".ky.yaml", "Lubefile", "Kyfile"]
   CONFIG_LOCATIONS = ["#{Dir.pwd}/", "#{Dir.home}/"]
   DEFAULT_CONFIG = {
@@ -23,10 +23,9 @@ module KY
     inline_config: true,
     inline_secret: false,
     project_name: "global"
-  }.stringify_keys
+  }.with_indifferent_access
 
-  module_function
-  cattr_accessor :environment, :image_tag
+  attr_accessor :environment, :image_tag
 
   def decode(output, input)
     output << Manipulation.code_yaml(input, :decode)
@@ -41,7 +40,7 @@ module KY
   end
 
   def env(output, input1, input2)
-    output << EnvGeneration.generate_env(input1, input2).to_yaml
+    output << EnvGeneration.generate_env(self, input1, input2).to_yaml
   rescue KY::EnvGeneration::ConflictingProjectError => e
     $stderr << "Error processing yml files, please provide a config and a secrets file from the same kubernetes project/name"
     exit(1)
@@ -50,12 +49,12 @@ module KY
   def compile(proc_path, env1path, env2path, base_output_dir, namespace=DeployGeneration::DEFAULT_NAMESPACE)
     full_output_dir = Pathname.new(base_output_dir).join(environment.to_s).to_s
     FileUtils.mkdir_p(full_output_dir)
-    env_obj = EnvGeneration.new(env1path, env2path)
-    deploys_hash = DeployGeneration.new(proc_path, full_output_dir, env_obj.project, namespace).to_h
+    env_obj = EnvGeneration.new(self, env1path, env2path)
+    deploys_hash = DeployGeneration.new(self, proc_path, full_output_dir, env_obj.project, namespace).to_h
     deploys_hash.each do |file_path, deploy_hash|
       File.write(file_path, Manipulation.merge_hash(deploy_hash, env_obj.to_h).to_yaml)
     end
-    Manipulation.write_configs_encode_if_needed(env_obj.config_hsh, env_obj.secret_hsh, full_output_dir, configuration["project_name"])
+    Manipulation.write_configs_encode_if_needed(env_obj.config_hsh, env_obj.secret_hsh, full_output_dir, configuration[:project_name])
   end
 
   def configuration

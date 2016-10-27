@@ -1,5 +1,5 @@
 require 'deep_merge/rails_compat'
-module KY
+class KY
   module Manipulation
     DEFAULT_DATA_KEY = 'data'
     MAGIC_DELIMITER = '@'

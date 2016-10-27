@@ -1,6 +1,6 @@
 require 'active_support'
 require 'active_support/core_ext'
-module KY
+class KY
   class EnvGeneration
     ConflictingProjectError = Class.new(StandardError)
 
@@ -9,13 +9,14 @@ module KY
       define_method(raw_string.underscore) { raw_string }
     end
 
-    def self.generate_env(input1, input2)
-      new(input1, input2).to_h
+    def self.generate_env(instance, input1, input2)
+      new(instance, input1, input2).to_h
     end
 
-    attr_reader :config_hsh, :secret_hsh
-    def initialize(input1, input2)
+    attr_reader :config_hsh, :secret_hsh, :instance
+    def initialize(instance, input1, input2)
       input_hashes = YAML.load(input1.read), YAML.load(input2.read)
+      @instance = instance
       @config_hsh = input_hashes.find {|h| h[kind] == config_map }
       @secret_hsh = input_hashes.find {|h| h[kind] == secret }
       raise ConflictingProjectError.new("Config and Secret metadata names do not agree") unless secret_hsh[metadata][name] == project
@@ -41,12 +42,12 @@ module KY
     end
 
     def inline_config?
-      KY.configuration[:inline_config]
+      instance.configuration[:inline_config]
     end
 
 
     def inline_secret?
-      KY.configuration[:inline_secret]
+      instance.configuration[:inline_secret]
     end
 
     def inline_env_map(type, kebab_version, env_value)
