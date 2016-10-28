@@ -65,7 +65,7 @@ class KY
   def configuration
     @config ||= begin
       config = DEFAULT_CONFIG.merge(config_file_location ? YAML.load(File.read(config_file_location)).with_indifferent_access : {})
-      config = config.merge(current_environment_hash(config)[:configuration] || {})
+      config = config.merge(current_environment_hash(config)[:configuration])
       define_methods_from_config(config)
       config
     end
@@ -80,7 +80,7 @@ class KY
     current_config = partial_config || configuration
     env_file_path = environment_files(current_config).find {|file| file.match(current_config[:environment]) } if current_config[:environment] # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
     hsh = env_file_path ?  YAML.load(File.read(env_file_path)).with_indifferent_access : {}
-    hsh.merge(configuration: opts).with_indifferent_access
+    (hsh[:configuration] ? hsh[:configuration].merge(opts) : hsh.merge(configuration: opts)).with_indifferent_access
   end
 
   def environment_files(partial_config=nil)
