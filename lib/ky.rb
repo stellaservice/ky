@@ -23,13 +23,16 @@ class KY
     api_version: "extensions/v1beta1",
     inline_config: true,
     inline_secret: false,
-    project_name: "global"
+    project_name: "global",
+    force_configmap_apply: false
   }.with_indifferent_access
 
-  attr_reader :opts
+  attr_reader :opts, :configuration
 
   def initialize(opts={})
     @opts=opts
+    @configuration = build_configuration
+    define_methods_from_config(configuration)
   end
 
   def decode(output, input)
@@ -62,13 +65,14 @@ class KY
     Manipulation.write_configs_encode_if_needed(env_obj.config_hsh, env_obj.secret_hsh, full_output_dir, configuration[:project_name])
   end
 
-  def configuration
-    @config ||= begin
-      config = DEFAULT_CONFIG.merge(config_file_location ? YAML.load(File.read(config_file_location)).with_indifferent_access : {})
-      config = config.merge(current_environment_hash(config)[:configuration])
-      define_methods_from_config(config)
-      config
-    end
+  def build_configuration
+    config = if config_file_location
+      YAML.load(File.read(config_file_location))
+    else
+      DEFAULT_CONFIG
+    end.with_indifferent_access
+    config.merge!(current_environment_hash(config))
+    config
   end
 
   def deploy_merge(id)
@@ -76,14 +80,14 @@ class KY
     configuration[:merge][id].to_h
   end
 
-  def current_environment_hash(partial_config=nil)
+  def current_environment_hash(partial_config)
     current_config = partial_config || configuration
-    env_file_path = environment_files(current_config).find {|file| file.match(current_config[:environment]) } if current_config[:environment] # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
+    env_file_path = environment_files(current_config).find {|file| file.match(opts[:environment] || current_config[:environment]) } if opts[:environment] || current_config[:environment] # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
     hsh = env_file_path ?  YAML.load(File.read(env_file_path)).with_indifferent_access : {}
-    (hsh[:configuration] ? hsh[:configuration].merge(opts) : hsh.merge(configuration: opts)).with_indifferent_access
+    (hsh[:configuration] ? hsh[:configuration].merge(opts) : hsh.merge(opts)).with_indifferent_access
   end
 
-  def environment_files(partial_config=nil)
+  def environment_files(partial_config)
     environments = (partial_config || configuration)[:environments].flat_map {|env| ["#{env}.yml", "#{env}.yaml"]}
     (CONFIG_LOCATIONS * environments.count).zip(environments).map(&:join).select {|path| File.exist?(path) && !File.directory?(path) }
   end
