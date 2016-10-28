@@ -9,7 +9,7 @@ The full/hopeful use of the tool may be enabled with the new `compile` command w
 The command is invoked as:
 `ky compile Procfile.file config.yml secrets.yml output_dir` and the output directory will be created if necessary.  You may pass a namespace to compile which will be reflected in the deployments (and should agree with the config and secrets, though it's not checking they agree at present).  The arguments are all configurable via the configuration file as well, so it can in practice be invoked as `ky compile` or `ky compile --envioronment stg` if you have a configuration file correctly present as described below.
 
-Configuration begins with a config file in the project working directory, or in your home directory if you wish to share across several projects.  Unfortunately there are several competing conventions for configuration files, the traditional dot-file configuration convention and newer, more visible Capitalfile configuration.  KY is a lubricant, and has no opinion, and therefore currently supports naming your configuration file `.ky.yml`, `.ky.yaml`, or `Lubefile` or `Kyfile`.  The default configuration, if this file is not found, is as follows:
+Configuration begins with a config file in the project working directory, or in your home directory if you wish to share across several projects.  Unfortunately there are several competing conventions for configuration files, the traditional dot-file configuration convention and newer, more visible Capitalfile configuration.  KY is a lubricant, and has no opinion, and therefore currently supports naming your configuration file `.ky.yml`, `.ky.yaml`, or `Lubefile`.  The default configuration, if this file is not found, is as follows:
 ```
   environments: []
   replica_count: 1

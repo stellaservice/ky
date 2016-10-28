@@ -65,7 +65,7 @@ describe "ky cli" do
     let(:instance) { KY.new }
     let(:fake_tag) { 'fake_tag' }
     let(:tmpdir) { 'spec/support/tmpdir' }
-    # after { `rm -r #{tmpdir}` }
+    after { `rm -r #{tmpdir}` }
     describe "compiles Procfile and env secrets/configs into entire deployments" do
       it "to directory" do
         KY::Cli.new.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
@@ -115,6 +115,30 @@ describe "ky cli" do
         instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)
+      end
+    end
+
+    describe "merges yaml to named ids templates when compiling" do
+      before { `cp spec/support/Lubefile .`}
+      after { `rm Lubefile` }
+      it "to directory" do
+        instance = KY::Cli.new
+        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
+        expect(File.exists?("#{tmpdir}/jobs.deployment.yml")).to be true
+        expect(File.read("#{tmpdir}/web.deployment.yml")).to match('port')
+        expect(File.read("#{tmpdir}/jobs.deployment.yml")).not_to match('port')
+      end
+    end
+
+    describe "serializes yaml without reference to HashWithIndifferentAccess" do
+      before { `cp spec/support/Lubefile .`}
+      after { `rm Lubefile` }
+      it "to directory" do
+        instance = KY::Cli.new
+        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
+        expect(File.read("#{tmpdir}/web.deployment.yml")).not_to match('HashWithIndifferentAccess')
       end
     end
 

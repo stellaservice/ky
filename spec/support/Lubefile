@@ -1,0 +1,23 @@
+environments: [dev, stg, prd]
+deployment: examples/deployment_base.yml
+replica_count: 2
+image_pull_policy: "IfNotPresent"
+namespace: "default"
+image: "organization/project"
+image_tag: "latest"
+api_version: "extensions/v1beta1"
+inline_config: true
+inline_secret: false
+project_name: "connect"
+config_path: "spec/support/config.yml"
+secret_path: "spec/support/decoded.yml"
+output_dir: "namespaces"
+procfile_path: "spec/support/Procfile"
+merge:
+  web:
+    spec:
+      template:
+        spec:
+          containers:
+            - ports:
+              - containerPort: 3000

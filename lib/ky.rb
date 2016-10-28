@@ -7,10 +7,11 @@ require_relative 'ky/manipulation'
 require_relative 'ky/env_generation'
 require_relative 'ky/template'
 require_relative 'ky/deploy_generation'
+require_relative 'ky/hash'
 
 
 class KY
-  CONFIG_FILE_NAMES = [".ky.yml", ".ky.yaml", "Lubefile", "Kyfile"]
+  CONFIG_FILE_NAMES = [".ky.yml", ".ky.yaml", "Lubefile"]
   CONFIG_LOCATIONS = ["#{Dir.pwd}/", "#{Dir.home}/"]
   DEFAULT_CONFIG = {
     environments: [],
@@ -44,7 +45,7 @@ class KY
   end
 
   def env(output, input1, input2)
-    output << EnvGeneration.generate_env(self, input1, input2).to_yaml
+    output << EnvGeneration.generate_env(self, input1, input2).to_plain_yaml
   rescue KY::EnvGeneration::ConflictingProjectError => e
     $stderr << "Error processing yml files, please provide a config and a secrets file from the same kubernetes project/name"
     exit(1)
@@ -56,7 +57,7 @@ class KY
     env_obj = EnvGeneration.new(self, env1path, env2path)
     deploys_hash = DeployGeneration.new(self, proc_path, full_output_dir, env_obj.project, configuration[:namespace]).to_h
     deploys_hash.each do |file_path, deploy_hash|
-      File.write(file_path, Manipulation.merge_hash(deploy_hash, env_obj.to_h).to_yaml)
+      File.write(file_path, Manipulation.merge_hash(deploy_hash, env_obj.to_h).to_plain_yaml)
     end
     Manipulation.write_configs_encode_if_needed(env_obj.config_hsh, env_obj.secret_hsh, full_output_dir, configuration[:project_name])
   end
@@ -77,9 +78,9 @@ class KY
 
   def current_environment_hash(partial_config=nil)
     current_config = partial_config || configuration
-    env_file_path = environment_files(current_config).find {|file| file.match(current_config[:environment]) } # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
+    env_file_path = environment_files(current_config).find {|file| file.match(current_config[:environment]) } if current_config[:environment] # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
     hsh = env_file_path ?  YAML.load(File.read(env_file_path)).with_indifferent_access : {}
-    hsh.merge(:configuration => opts).with_indifferent_access
+    hsh.merge(configuration: opts).with_indifferent_access
   end
 
   def environment_files(partial_config=nil)

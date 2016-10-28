@@ -14,7 +14,7 @@ class KY
 
     def call
       to_h.each do |file_path, deploy_hash|
-        File.write(file_path, deploy_hash.to_yaml)
+        File.write(file_path, deploy_hash.to_plain_yaml)
       end
     end
 
