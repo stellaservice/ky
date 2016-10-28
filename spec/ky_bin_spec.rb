@@ -142,6 +142,18 @@ describe "ky cli" do
       end
     end
 
+    describe "adds random inline value if force_configmap_apply is true" do
+      before { `cp spec/support/Lubefile .`}
+      after { `rm Lubefile` }
+      it "to directory" do
+        instance = KY::Cli.new
+        instance.options = {force_configmap_apply: true}
+        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
+        expect(File.read("#{tmpdir}/web.deployment.yml")).to match('FORCE_CONFIGMAP_APPLY')
+      end
+    end
+
   end
 end
 

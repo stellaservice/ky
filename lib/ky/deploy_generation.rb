@@ -42,7 +42,7 @@ class KY
     def template_hash(id, command_array)
       app_name =  instance.configuration['app_name'] || "#{project_name}-#{id}"
       template_context = Template.context(app_name: app_name, id: id, command_array: command_array)
-      Manipulation.merge_hash(
+      tmp = Manipulation.merge_hash(
         YAML.load(
           ERB.new(deployment_yaml).result(template_context)
         ),

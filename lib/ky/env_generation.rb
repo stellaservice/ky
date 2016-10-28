@@ -1,5 +1,6 @@
 require 'active_support'
 require 'active_support/core_ext'
+require 'securerandom'
 class KY
   class EnvGeneration
     ConflictingProjectError = Class.new(StandardError)
@@ -23,7 +24,7 @@ class KY
     end
 
     def to_h
-      output_hash(config_hsh[data].map {|key, value| config_env(key, value) } + secret_hsh[data].map {|key, value| secret_env(key, value) })
+      output_hash(config_hsh[data].map {|key, value| config_env(key, value) } + secret_hsh[data].map {|key, value| secret_env(key, value) } + force_config)
     end
 
     def project
@@ -32,6 +33,10 @@ class KY
 
     private
 
+    def force_config
+      return [] unless instance.configuration[:force_configmap_apply]
+      [inline_env_map(config_map_key_ref, "force-configmap-apply", SecureRandom.hex)]
+    end
 
     def config_env(kebab_version, value)
       inline_config? ? inline_env_map(config_map_key_ref, kebab_version, value) : env_map(config_map_key_ref, kebab_version)
