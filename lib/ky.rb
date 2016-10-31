@@ -32,7 +32,6 @@ class KY
   def initialize(opts={})
     @opts=opts
     @configuration = build_configuration
-    define_methods_from_config(configuration)
   end
 
   def decode(output, input)
@@ -94,12 +93,6 @@ class KY
 
   def config_file_location
     (CONFIG_LOCATIONS * CONFIG_FILE_NAMES.count).zip(CONFIG_FILE_NAMES).map(&:join).find {|path| File.exist?(path) && !File.directory?(path) }
-  end
-
-  def define_methods_from_config(config)
-    config.keys.each do |key|
-      Template.send(:define_method, key) { config[key] }
-    end
   end
 
 end

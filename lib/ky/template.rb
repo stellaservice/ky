@@ -1,19 +1,21 @@
 class KY
   class Template
-    def self.context(hsh)
-      new(hsh).context
+
+    def initialize(ky_instance)
+      define_methods_from_config(ky_instance.configuration)
     end
 
-    attr_reader :context_hash
-    def initialize(hsh)
-      @context_hash = hsh
+    def define_methods_from_config(config)
+      config.keys.each do |key|
+        define_singleton_method(key) { config[key] }
+      end
     end
 
     def environment
       KY.environment
     end
 
-    def context
+    def context(context_hash)
       template_context = binding
       context_hash.each do |var, value|
         template_context.local_variable_set(var, value)
