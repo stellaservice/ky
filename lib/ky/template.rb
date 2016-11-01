@@ -1,18 +1,14 @@
-class KY
+module KY
   class Template
 
-    def initialize(ky_instance)
-      define_methods_from_config(ky_instance.configuration)
+    def initialize(configuration)
+      define_methods_from_config(configuration)
     end
 
     def define_methods_from_config(config)
       config.keys.each do |key|
         define_singleton_method(key) { config[key] }
       end
-    end
-
-    def environment
-      KY.environment
     end
 
     def context(context_hash)

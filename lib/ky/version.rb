@@ -1,3 +1,3 @@
-class KY
-  VERSION = "0.4.0"
+module KY
+  VERSION = "0.4.1"
 end

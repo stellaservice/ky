@@ -1,33 +1,33 @@
 require_relative '../ky'
 require 'thor'
-class KY
+module KY
   class Cli < Thor
     MissingParametersError = Class.new(StandardError)
     desc "encode secrets.yml", "base64 encoded yaml version of data attributes in secrets.yml"
     def encode(input_source=$stdin, output_source=$stdout)
       input_output(input_source, output_source) do |input_object, output_object|
-        KY.new.encode(output_object, input_object)
+        Manipulation.encode(output_object, input_object)
       end
     end
 
     desc "decode secrets.yml", "decoded yaml version of secrets.yml with base64 encoded data attributes"
     def decode(input_source=$stdin, output_source=$stdout)
       input_output(input_source, output_source) do |input_object, output_object|
-        KY.new.decode(output_object, input_object)
+        Manipulation.decode(output_object, input_object)
       end
     end
 
     desc "merge base.yml env.yml", "deep merged/combined yaml of two seperate files"
     def merge(input_source1, input_source2=$stdin, output_source=$stdout)
       input_output(input_source1, output_source) do |input_object1, output_object|
-        with(input_source2, 'r') {|input_object2| KY.new.merge(output_object, input_object1, input_object2) }
+        with(input_source2, 'r') {|input_object2| Manipulation.merge(output_object, input_object1, input_object2) }
       end
     end
 
     desc "env config.yml secrets.yml", "generate env variables section of a deployment from a config and a secrets file"
     def env(input_source1, input_source2=$stdin, output_source=$stdout)
       input_output(input_source1, output_source) do |input_object1, output_object|
-        with(input_source2, 'r') {|input_object2| KY.new.env(output_object, input_object1, input_object2) }
+        with(input_source2, 'r') {|input_object2| EnvGeneration.env(output_object, input_object1, input_object2) }
       end
     end
 
@@ -42,15 +42,15 @@ class KY
     method_option :namespace, type: :string, aliases: "-n"
     method_option :environment, type: :string, aliases: "-e"
     method_option :image_tag, type: :string, aliases: "-t"
-    def compile(procfile_path=nil, config_or_secrets_path=nil, secrets_or_config_path=nil, output_dir=nil)
-      instance = KY.new(options.with_indifferent_access)
-      procfile_path ||= instance.configuration['procfile_path']
+    method_option :procfile_path, type: :string, aliases: "-p"
+    def compile(config_or_secrets_path=nil, secrets_or_config_path=nil, output_dir=nil)
+      instance = Compilation.new(options.with_indifferent_access)
       config_or_secrets_path  ||= instance.configuration['config_path'] || instance.configuration['secret_path']
       secrets_or_config_path  ||= instance.configuration['secret_path'] || instance.configuration['config_path']
       output_dir ||= instance.configuration['output_dir']
-      raise MissingParametersError unless procfile_path && config_or_secrets_path && secrets_or_config_path && output_dir
+      raise MissingParametersError unless config_or_secrets_path && secrets_or_config_path && output_dir && instance.configuration['procfile_path']
       input_input(config_or_secrets_path, secrets_or_config_path) do |input1, input2|
-        instance.compile(procfile_path, input1, input2, output_dir)
+        instance.compile(input1, input2, output_dir)
       end
     end
 

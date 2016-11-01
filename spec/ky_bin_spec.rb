@@ -64,11 +64,14 @@ describe "ky cli" do
   describe "primary cli command generates and" do
     let(:instance) { KY.new }
     let(:fake_tag) { 'fake_tag' }
+    let(:fake_namespace) { 'fake_namespace' }
     let(:tmpdir) { 'spec/support/tmpdir' }
     after { `rm -r #{tmpdir}` }
     describe "compiles Procfile and env secrets/configs into entire deployments" do
       it "to directory" do
-        KY::Cli.new.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance = KY::Cli.new
+        instance.options = {procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.exists?("#{tmpdir}/worker.deployment.yml")).to be true
         expect(File.exists?("#{tmpdir}/jobs.deployment.yml")).to be true
@@ -78,7 +81,8 @@ describe "ky cli" do
     describe "encodes secrets.yml when compiling from Procfile without image_tag" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/global.secret.yml")).to be true
         YAML.load(File.read("#{tmpdir}/global.secret.yml"))['data'].each do |_k, v|
           expect(v).to match(KY::Manipulation::BASE_64_DETECTION_REGEX)
@@ -89,8 +93,8 @@ describe "ky cli" do
     describe "encodes secrets.yml when compiling from Procfile with image_tag" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {image_tag: fake_tag}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {image_tag: fake_tag, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/global.secret.yml")).to be true
         YAML.load(File.read("#{tmpdir}/global.secret.yml"))['data'].each do |_k, v|
           expect(v).to match(KY::Manipulation::BASE_64_DETECTION_REGEX)
@@ -101,8 +105,8 @@ describe "ky cli" do
     describe "uses image_tag when passed in as option" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {image_tag: fake_tag}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {image_tag: fake_tag, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)
       end
@@ -111,10 +115,10 @@ describe "ky cli" do
     describe "uses namespace when passed in as option" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {namespace: fake_tag}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {namespace: fake_namespace, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
-        expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)
+        expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_namespace)
       end
     end
 
@@ -123,7 +127,8 @@ describe "ky cli" do
       after { `rm Lubefile` }
       it "to directory" do
         instance = KY::Cli.new
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.exists?("#{tmpdir}/jobs.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match('port')
@@ -136,7 +141,7 @@ describe "ky cli" do
       after { `rm Lubefile` }
       it "to directory" do
         instance = KY::Cli.new
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).not_to match('HashWithIndifferentAccess')
       end
@@ -147,11 +152,31 @@ describe "ky cli" do
       after { `rm Lubefile` }
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {force_configmap_apply: true}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {procfile_path: 'spec/support/Procfile', force_configmap_apply: true}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match('FORCE_CONFIGMAP_APPLY')
       end
+    end
+
+    describe "applies namespace to generated" do
+
+      before do
+        instance = KY::Cli.new
+        instance.options = {namespace: fake_namespace, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+      end
+
+      it "configmaps" do
+        expect(File.exists?("#{tmpdir}/global.configmap.yml")).to be true
+        expect(YAML.load(File.read("#{tmpdir}/global.configmap.yml"))['metadata']['namespace']).to match(fake_namespace)
+      end
+
+      it "deployments" do
+        expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
+        expect(YAML.load(File.read("#{tmpdir}/web.deployment.yml"))['metadata']['namespace']).to match(fake_namespace)
+      end
+
     end
 
   end
