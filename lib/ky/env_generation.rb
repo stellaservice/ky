@@ -23,8 +23,11 @@ module KY
 
     attr_reader :config_hsh, :secret_hsh, :configuration
     def initialize(input1, input2, configuration = Configuration.new)
-      input_hashes = YAML.load(input1.read), YAML.load(input2.read)
+      input_hashes = YAML.load(input1.read).with_indifferent_access, YAML.load(input2.read).with_indifferent_access
       @configuration = configuration
+      input_hashes.each do |env_hsh|
+        env_hsh[:metadata][:namespace] = configuration[:namespace]
+      end
       @config_hsh = input_hashes.find {|h| h[kind] == config_map }
       @secret_hsh = input_hashes.find {|h| h[kind] == secret }
       raise ConflictingProjectError.new("Config and Secret metadata names do not agree") unless secret_hsh[metadata][name] == project

@@ -64,6 +64,7 @@ describe "ky cli" do
   describe "primary cli command generates and" do
     let(:instance) { KY.new }
     let(:fake_tag) { 'fake_tag' }
+    let(:fake_namespace) { 'fake_namespace' }
     let(:tmpdir) { 'spec/support/tmpdir' }
     after { `rm -r #{tmpdir}` }
     describe "compiles Procfile and env secrets/configs into entire deployments" do
@@ -114,10 +115,10 @@ describe "ky cli" do
     describe "uses namespace when passed in as option" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {namespace: fake_tag, procfile_path: 'spec/support/Procfile'}
+        instance.options = {namespace: fake_namespace, procfile_path: 'spec/support/Procfile'}
         instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
-        expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)
+        expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_namespace)
       end
     end
 
@@ -156,6 +157,26 @@ describe "ky cli" do
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match('FORCE_CONFIGMAP_APPLY')
       end
+    end
+
+    describe "applies namespace to generated" do
+
+      before do
+        instance = KY::Cli.new
+        instance.options = {namespace: fake_namespace, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+      end
+
+      it "configmaps" do
+        expect(File.exists?("#{tmpdir}/global.configmap.yml")).to be true
+        expect(YAML.load(File.read("#{tmpdir}/global.configmap.yml"))['metadata']['namespace']).to match(fake_namespace)
+      end
+
+      it "deployments" do
+        expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
+        expect(YAML.load(File.read("#{tmpdir}/web.deployment.yml"))['metadata']['namespace']).to match(fake_namespace)
+      end
+
     end
 
   end
