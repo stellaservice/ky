@@ -31,10 +31,10 @@ module KY
       end
     end
 
-    desc "compile Procfile config.yml secrets.yml output", <<-DOC.strip_heredoc
-    Generate kubernetes deployment.yml from Procfile;
+    desc "compile (config.yml secrets.yml output)", <<-DOC.strip_heredoc
+    Generate kubernetes deployment.yml from Procfile and env files;
     also generate/copy config/secrets files to output_dir, base64 encode secrets if unencoded.
-    Procfile path may also be specified in configuration as procfile_path
+    Procfile path may be specified in configuration as procfile_path or via flag.
     ConfigMap.yml file path may also be specified in configuration as config_path
     secrets.yml file path may also be specified in configuration as secret_path
     Output directory may also be specified in configuration as output_dir
