@@ -68,7 +68,9 @@ describe "ky cli" do
     after { `rm -r #{tmpdir}` }
     describe "compiles Procfile and env secrets/configs into entire deployments" do
       it "to directory" do
-        KY::Cli.new.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance = KY::Cli.new
+        instance.options = {procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.exists?("#{tmpdir}/worker.deployment.yml")).to be true
         expect(File.exists?("#{tmpdir}/jobs.deployment.yml")).to be true
@@ -78,7 +80,8 @@ describe "ky cli" do
     describe "encodes secrets.yml when compiling from Procfile without image_tag" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/global.secret.yml")).to be true
         YAML.load(File.read("#{tmpdir}/global.secret.yml"))['data'].each do |_k, v|
           expect(v).to match(KY::Manipulation::BASE_64_DETECTION_REGEX)
@@ -89,8 +92,8 @@ describe "ky cli" do
     describe "encodes secrets.yml when compiling from Procfile with image_tag" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {image_tag: fake_tag}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {image_tag: fake_tag, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/global.secret.yml")).to be true
         YAML.load(File.read("#{tmpdir}/global.secret.yml"))['data'].each do |_k, v|
           expect(v).to match(KY::Manipulation::BASE_64_DETECTION_REGEX)
@@ -101,8 +104,8 @@ describe "ky cli" do
     describe "uses image_tag when passed in as option" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {image_tag: fake_tag}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {image_tag: fake_tag, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)
       end
@@ -111,8 +114,8 @@ describe "ky cli" do
     describe "uses namespace when passed in as option" do
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {namespace: fake_tag}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {namespace: fake_tag, procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match(fake_tag)
       end
@@ -123,7 +126,8 @@ describe "ky cli" do
       after { `rm Lubefile` }
       it "to directory" do
         instance = KY::Cli.new
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {procfile_path: 'spec/support/Procfile'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.exists?("#{tmpdir}/jobs.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match('port')
@@ -136,7 +140,7 @@ describe "ky cli" do
       after { `rm Lubefile` }
       it "to directory" do
         instance = KY::Cli.new
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).not_to match('HashWithIndifferentAccess')
       end
@@ -147,8 +151,8 @@ describe "ky cli" do
       after { `rm Lubefile` }
       it "to directory" do
         instance = KY::Cli.new
-        instance.options = {force_configmap_apply: true}
-        instance.compile('spec/support/Procfile', 'spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+        instance.options = {procfile_path: 'spec/support/Procfile', force_configmap_apply: true}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
         expect(File.exists?("#{tmpdir}/web.deployment.yml")).to be true
         expect(File.read("#{tmpdir}/web.deployment.yml")).to match('FORCE_CONFIGMAP_APPLY')
       end

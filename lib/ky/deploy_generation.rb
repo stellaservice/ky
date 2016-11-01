@@ -1,9 +1,8 @@
 module KY
   class DeployGeneration
-    def initialize(proc_path, full_output_dir, project_name, configuration=Configuration.new)
+    def initialize(full_output_dir, project_name, configuration=Configuration.new)
       @configuration = configuration
-      @current_namespace = configuration[:namespace]
-      @proc_commands = File.read(proc_path).split("\n")
+      @proc_commands = File.read(configuration[:procfile_path]).split("\n")
                             .map {|line| line.split(':', 2) }
                             .map {|k, v| [k, ["/bin/bash","-c", v]] }
                             .to_h
@@ -25,7 +24,7 @@ module KY
     end
 
     private
-    attr_reader :proc_commands, :full_output_dir, :project_name, :current_namespace, :deployment_yaml, :configuration
+    attr_reader :proc_commands, :full_output_dir, :project_name, :deployment_yaml, :configuration
 
     def read_deployment_yaml
       if configuration['deployment']
