@@ -1,5 +1,6 @@
 module KY
   class Configuration
+    AmbiguousEnvironmentFile = Class.new(StandardError)
     attr_reader :configuration, :opts
 
     def initialize(opts={})
@@ -26,7 +27,13 @@ module KY
 
     def current_environment_hash(partial_config)
       current_config = partial_config || configuration
-      env_file_path = environment_files(current_config).find {|file| file.match(opts[:environment] || current_config[:environment]) } if opts[:environment] || current_config[:environment] # ugh, this find is accident waiting to happen, REFACTOR/RETHINK!
+      current_environment = opts[:environment] || current_config[:environment]
+      env_file_paths = environment_files(current_config).select {|file| file.match(current_environment) if current_environment }
+      if env_file_paths.count <= 1 # workaround for current possible env/path ambiguity
+        env_file_path = env_file_paths.first
+      else
+        raise AmbiguousEnvironmentFile.new("More than one file path matched the environment")
+      end
       hsh = env_file_path ?  YAML.load(File.read(env_file_path)).with_indifferent_access : {}
       (hsh[:configuration] ? hsh[:configuration].merge(opts) : hsh.merge(opts)).with_indifferent_access
     end
