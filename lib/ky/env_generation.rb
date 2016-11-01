@@ -1,7 +1,7 @@
 require 'active_support'
 require 'active_support/core_ext'
 require 'securerandom'
-class KY
+module KY
   class EnvGeneration
     ConflictingProjectError = Class.new(StandardError)
 
@@ -10,14 +10,21 @@ class KY
       define_method(raw_string.underscore) { raw_string }
     end
 
-    def self.generate_env(instance, input1, input2)
-      new(instance, input1, input2).to_h
+    def self.env(output, input1, input2)
+      output << generate_env(input1, input2).to_plain_yaml
+    rescue ConflictingProjectError => e
+      $stderr << "Error processing yml files, please provide a config and a secrets file from the same kubernetes project/name"
+      exit(1)
     end
 
-    attr_reader :config_hsh, :secret_hsh, :instance
-    def initialize(instance, input1, input2)
+    def self.generate_env(input1, input2)
+      new(input1, input2).to_h
+    end
+
+    attr_reader :config_hsh, :secret_hsh, :configuration
+    def initialize(input1, input2, configuration = Configuration.new)
       input_hashes = YAML.load(input1.read), YAML.load(input2.read)
-      @instance = instance
+      @configuration = configuration
       @config_hsh = input_hashes.find {|h| h[kind] == config_map }
       @secret_hsh = input_hashes.find {|h| h[kind] == secret }
       raise ConflictingProjectError.new("Config and Secret metadata names do not agree") unless secret_hsh[metadata][name] == project
@@ -34,7 +41,7 @@ class KY
     private
 
     def force_config
-      return [] unless instance.configuration[:force_configmap_apply]
+      return [] unless configuration[:force_configmap_apply]
       [inline_env_map(config_map_key_ref, "force-configmap-apply", SecureRandom.hex)]
     end
 
@@ -47,12 +54,12 @@ class KY
     end
 
     def inline_config?
-      instance.configuration[:inline_config]
+      configuration[:inline_config]
     end
 
 
     def inline_secret?
-      instance.configuration[:inline_secret]
+      configuration[:inline_secret]
     end
 
     def inline_env_map(type, kebab_version, env_value)

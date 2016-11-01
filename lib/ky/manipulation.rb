@@ -1,10 +1,23 @@
 require 'deep_merge/rails_compat'
-class KY
+module KY
   module Manipulation
     DEFAULT_DATA_KEY = 'data'
     MAGIC_DELIMITER = '@'
     BASE_64_DETECTION_REGEX = /^([A-Za-z0-9+]{4})*([A-Za-z0-9+]{4}|[A-Za-z0-9+]{3}=|[A-Za-z0-9+]{2}==)$/
     class << self
+
+      def decode(output, input)
+        output << code_yaml(input, :decode)
+      end
+
+      def encode(output, input)
+        output << code_yaml(input, :encode)
+      end
+
+      def merge(output, input1, input2)
+        output << merge_yaml(input1, input2)
+      end
+
       def merge_yaml(input1, input2)
         combined = {}
         YAML.load(input1.read).tap { |hsh|
