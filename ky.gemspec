@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.summary     = 'Kubernetes Yaml utilities and lubricant'
   s.rubyforge_project = 'ky'
   s.require_paths = ['lib']
+  s.add_development_dependency 'rake', '~> 11.3'
   s.add_development_dependency 'rspec', '~> 3.5'
   s.add_development_dependency 'pry', '~> 0.10'
   s.add_runtime_dependency 'thor', '~> 0.19'
