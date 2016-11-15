@@ -17,7 +17,9 @@ module KY
     end
 
     def build_configuration
-      config = if config_file_location
+      config = if ky_config_path = opts[:ky_config_path]
+        YAML.load(File.read(ky_config_path)).with_indifferent_access
+      elsif config_file_location
         YAML.load(File.read(config_file_location)).with_indifferent_access
       else
         DEFAULT_CONFIG

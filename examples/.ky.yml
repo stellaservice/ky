@@ -21,3 +21,13 @@ merge:
           containers:
             - ports:
               - containerPort: 3000
+  migration: &job
+    apiVersion: batch/v1
+    kind: Job
+    spec:
+      replicas: --
+      template:
+        spec:
+          restartPolicy: Never
+  console:
+    <<: *job

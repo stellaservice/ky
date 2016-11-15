@@ -26,7 +26,7 @@ module KY
       end
 
       def merge_hash(hsh1, hsh2)
-        hsh1.deeper_merge!(hsh2, merge_hash_arrays: true, extend_existing_arrays: true)
+        hsh1.deeper_merge!(hsh2, merge_hash_arrays: true, extend_existing_arrays: true, knockout_prefix: "--").compact_blank(recurse: true)
       end
 
       def code_yaml(yaml_source, direction)

@@ -179,6 +179,23 @@ describe "ky cli" do
 
     end
 
+    describe "allows knocking out depoyment elements in merge" do
+
+      before do
+        instance = KY::Cli.new
+        instance.options = {namespace: fake_namespace, procfile_path: 'spec/support/Procfile', ky_config_path: 'examples/.ky.yml'}
+        instance.compile('spec/support/config.yml', 'spec/support/decoded.yml', tmpdir)
+      end
+
+
+      it "generated files (currently named as deployments indiscriminately)" do
+        expect(File.exists?("#{tmpdir}/migration.deployment.yml")).to be true
+        expect(YAML.load(File.read("#{tmpdir}/migration.deployment.yml"))['spec']['replicas']).to be_nil
+        expect(YAML.load(File.read("#{tmpdir}/migration.deployment.yml"))['kind']).to match("Job")
+      end
+
+    end
+
   end
 end
 

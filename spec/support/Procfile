@@ -1,3 +1,5 @@
 web: bundle exec puma -C ./config/puma.rb
 jobs: bundle exec rake jobs:work
 worker: bundle exec toiler --rails -C config/toiler.yml
+migration: bundle exec rake db:migrate
+console: bundle exec

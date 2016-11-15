@@ -14,4 +14,14 @@ class Hash # specifically for HashWithIndifferentAccess < Hash, instead of plain
     end
     result
   end
+
+  def compact_blank(opts={})
+    inject({}) do |new_hash, (k,v)|
+      if !v.blank?
+        new_hash[k] = opts[:recurse] && v.class == Hash ? v.compact_blank(opts) : v
+      end
+      new_hash
+    end
+  end
+
 end

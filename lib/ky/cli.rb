@@ -38,11 +38,13 @@ module KY
     ConfigMap.yml file path may also be specified in configuration as config_path
     secrets.yml file path may also be specified in configuration as secret_path
     Output directory may also be specified in configuration as output_dir
+    Ky config (normally loaded from .ky) may be manually specified as ky_config_path
     DOC
     method_option :namespace, type: :string, aliases: "-n"
     method_option :environment, type: :string, aliases: "-e"
     method_option :image_tag, type: :string, aliases: "-t"
     method_option :procfile_path, type: :string, aliases: "-p"
+    method_option :ky_config_path, type: :string, aliases: "-k"
     def compile(config_or_secrets_path=nil, secrets_or_config_path=nil, output_dir=nil)
       instance = Compilation.new(options.with_indifferent_access)
       config_or_secrets_path  ||= instance.configuration['config_path'] || instance.configuration['secret_path']
