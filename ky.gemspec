@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'thor', '~> 0.19'
   s.add_runtime_dependency 'activesupport', '>= 3.0'
   s.add_runtime_dependency 'deep_merge', '~> 1.1'
+  s.add_runtime_dependency 'deterministic_random_username', '~> 1.0'
 
   s.description = <<-DESC
     Utility belt for generating kubernetes deployment, config and secrets yml files

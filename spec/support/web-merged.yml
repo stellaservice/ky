@@ -31,10 +31,10 @@ spec:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: test
+              name: test-joyous-peak
               key: database-url
         - name: PII_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: test
+              name: test-joyous-peak
               key: pii-encryption-key

@@ -10,7 +10,7 @@ module KY
       full_output_dir = Pathname.new(base_output_dir).join(configuration[:environment].to_s).to_s
       FileUtils.mkdir_p(full_output_dir)
       env_obj = EnvGeneration.new(env1path, env2path, configuration)
-      deploys_hash = DeployGeneration.new(full_output_dir, env_obj.project, configuration).to_h
+      deploys_hash = DeployGeneration.new(full_output_dir, env_obj.immutable_project_name, configuration).to_h
       deploys_hash.each do |file_path, deploy_hash|
         File.write(file_path, Manipulation.merge_hash(deploy_hash, env_obj.to_h).to_plain_yaml)
       end
