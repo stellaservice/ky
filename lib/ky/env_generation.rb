@@ -25,12 +25,16 @@ module KY
     def initialize(input1, input2, configuration = Configuration.new)
       input_hashes = YAML.load(input1.read).with_indifferent_access, YAML.load(input2.read).with_indifferent_access
       @configuration = configuration
-      input_hashes.each do |env_hsh|
-        env_hsh[:metadata][:namespace] = configuration[:namespace]
-      end
       @config_hsh = input_hashes.find {|h| h[kind] == config_map }
       @secret_hsh = input_hashes.find {|h| h[kind] == secret }
-      raise ConflictingProjectError.new("Config and Secret metadata names do not agree") unless secret_hsh[metadata][name] == project
+      secret_project = secret_hsh[metadata][name]
+      config_project = config_hsh[metadata][name]
+      input_hashes.each do |env_hsh|
+        env_hsh[:metadata][:namespace] = configuration[:namespace]
+        env_hsh[:metadata][:name] = immutable_project_name
+      end
+
+      raise ConflictingProjectError.new("Config and Secret metadata names do not agree") unless secret_project == config_project
     end
 
     def to_h
@@ -38,10 +42,22 @@ module KY
     end
 
     def project
-       config_hsh[metadata][name]
+       @name ||= config_hsh[metadata][name]
     end
 
     private
+
+    def immutable_project_name
+      project + env_sha
+    end
+
+    def env_sha
+      sha = Digest::SHA1.new
+      sha.update config_hsh[data].to_json
+      sha.update secret_hsh[data].to_json
+      sha.digest
+      "-#{sha.hexdigest}"
+    end
 
     def force_config
       return [] unless configuration[:force_configmap_apply]
@@ -72,7 +88,7 @@ module KY
 
     def env_map(type, kebab_version)
       puts "WARNING: #{kebab_version} format appears incorrect, format as #{kebab_version.dasherize.downcase}" unless kebab_version == kebab_version.dasherize.downcase
-      {name => kebab_version.underscore.upcase, value_from => { type => {name => project, key => kebab_version }}}
+      {name => kebab_version.underscore.upcase, value_from => { type => {name => immutable_project_name, key => kebab_version }}}
     end
 
     def output_hash(env_array)

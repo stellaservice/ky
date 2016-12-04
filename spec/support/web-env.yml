@@ -13,10 +13,10 @@ spec:
         - name: DATABASE_URL
           valueFrom:
             secretKeyRef:
-              name: test
+              name: test-eef44890a5e5a7eb49214ac9c3992a4ace8888bb
               key: database-url
         - name: PII_ENCRYPTION_KEY
           valueFrom:
             secretKeyRef:
-              name: test
+              name: test-eef44890a5e5a7eb49214ac9c3992a4ace8888bb
               key: pii-encryption-key
