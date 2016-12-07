@@ -4,6 +4,7 @@ require 'securerandom'
 module KY
   class EnvGeneration
     ConflictingProjectError = Class.new(StandardError)
+    OverlappingKeysInConfigmapAndSecretsError = Class.new(StandardError)
 
     #string array meta-trick to avoid naked strings everywhere below, yaml doesn't to_s symbols as desired
     %w(ConfigMap configMapKeyRef Secret secretKeyRef kind data metadata name key valueFrom value spec template containers env).each do |raw_string|
@@ -35,6 +36,8 @@ module KY
       end
 
       raise ConflictingProjectError.new("Config and Secret metadata names do not agree") unless secret_project == config_project
+      intersection = config_hsh[data].keys & secret_hsh[data].keys
+      raise OverlappingKeysInConfigmapAndSecretsError.new(intersection) unless intersection.empty?
     end
 
     def to_h
