@@ -23,8 +23,9 @@ module KY
       end.to_h
     end
 
-    private
     attr_reader :proc_commands, :full_output_dir, :project_name, :deployment_yaml, :configuration
+
+    private
 
     def read_deployment_yaml
       if configuration['deployment']
