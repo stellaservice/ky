@@ -1,3 +1,3 @@
 module KY
-  VERSION = "0.5.2.pre1"
+  VERSION = "0.6.0"
 end

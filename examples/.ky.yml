@@ -8,11 +8,18 @@ image_tag: "latest"
 api_version: "extensions/v1beta1"
 inline_config: true
 inline_secret: false
-project_name: "connect"
+project_name: "my-project"
 config_path: "spec/support/config.yml"
 secret_path: "spec/support/decoded.yml"
 output_dir: "namespaces"
 procfile_path: "spec/support/Procfile"
+kubert:
+  contexts:
+    staging: staging.example.com
+    prod: production.example.com
+  excluded_deployments: [sanitize, migration]
+  default_environment: stg
+  task_pod: console
 merge:
   web:
     spec:
