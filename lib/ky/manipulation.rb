@@ -4,6 +4,8 @@ module KY
     DEFAULT_DATA_KEY = 'data'
     MAGIC_DELIMITER = '@'
     BASE_64_DETECTION_REGEX = /^([A-Za-z0-9+]{4})*([A-Za-z0-9+]{4}|[A-Za-z0-9+]{3}=|[A-Za-z0-9+]{2}==)$/
+    SECRET_SUFFIX = ".secret.yml"
+    CONFIG_SUFFIX = ".configmap.yml"
     class << self
 
       def decode(output, input)
@@ -60,12 +62,13 @@ module KY
       end
 
       def write_configs_encode_if_needed(config_hsh, secret_hsh, output_path, project_name)
-        if secret_hsh[obscured_data_key].values.all? {|value| BASE_64_DETECTION_REGEX =~ value }
-          File.write("#{output_path}/#{project_name}.secret.yml", secret_hsh.to_plain_yaml)
-        else
-          File.write("#{output_path}/#{project_name}.secret.yml", code_yaml(StringIO.new(secret_hsh.to_plain_yaml), :encode))
-        end
-        File.write("#{output_path}/#{project_name}.configmap.yml", config_hsh.to_plain_yaml)
+        secret_yaml = if secret_hsh[obscured_data_key].values.all? {|value| BASE_64_DETECTION_REGEX =~ value }
+                        secret_hsh.to_plain_yaml
+                      else
+                        code_yaml(StringIO.new(secret_hsh.to_plain_yaml), :encode)
+                      end
+        File.write("#{output_path}/#{project_name}#{SECRET_SUFFIX}", secret_yaml)
+        File.write("#{output_path}/#{project_name}#{CONFIG_SUFFIX}", config_hsh.to_plain_yaml)
       end
 
     end
