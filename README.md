@@ -27,6 +27,8 @@ Configuration begins with a config file in the project working directory, or in 
 
 Override any or all of these in your file, and the environments files will also prompt KY to look for files named `development.yml` or `development.yaml` in the same directory as the config file itself, if you override environments as `[development]`, or whatever/however many environments as you name. When running a specific environment, configuration from the specific environment will override your global defaults.
 
+`secret_path` and `config_path` are key pieces of config not shown above that will likely NOT be defined in your global ky configuration but in the environment specific files referenced above... ky allows one such file per environment listed in the environments config, and merges any second level keys defined in those files under a top level `configuration` key as overrides of the global ky config.
+
 The less automated workflow for the tool might start with generating a yaml file of env mappings from a secrets.yml file and a config.yml file, like so:
 ###Example usage
 Assuming config.yml such as:
