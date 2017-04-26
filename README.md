@@ -193,7 +193,7 @@ data:
 
 The delimiter can be changed with the env var `MAGIC_FILE` from default value of '@', and the data key can be changed from it's default value of 'data' with env var `DATA_KEY`.
 
-Gem install as usual in bundler or directly as `ky`, though only CLI usage is intended at present.
+Gem install as usual in bundler or directly as `ky`.  Originally only intended for CLI usage, Kubert integration motivated extraction of all CLI behavior to go through an API module that provides a clean(ish) ruby interface
 
 ###Example usage
 ```
