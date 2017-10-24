@@ -195,7 +195,7 @@ The delimiter can be changed with the env var `MAGIC_FILE` from default value of
 
 Gem install as usual in bundler or directly as `ky`.  Originally only intended for CLI usage, Kubert integration motivated extraction of all CLI behavior to go through an API module that provides a clean(ish) ruby interface
 
-###Example usage
+### Example usage
 ```
 $ ky encode connect.configmap.yml # outputs encoded yaml to stdout
 $ ky decode connect.secrets.yml # outputs decode yaml to stdout
